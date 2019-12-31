@@ -5,49 +5,19 @@
 #include <iostream>
 #include <fstream>
 
-cl::Device& getDevice(int i = 0);
-void showDeviceInfo();
+void showDeviceInfo(std::vector<cl::Platform>& platforms, std::vector<cl::Device>& devices);
 
 int main()
 {
 	std::vector<cl::Platform> platforms;
-	cl::Platform::get(&platforms);
-
-	if(platforms.size() <= 0)
-	{
-		std::cerr << "platforms is empty" << std::endl;
-		exit(-1);
-	}
-
-	std::cout << "num platforms\t" << platforms.size() << "\n";
-
-	auto platform = platforms.front();
 	std::vector<cl::Device> devices;
-	platform.getDevices(CL_DEVICE_TYPE_ALL, &devices);
 
-	if(devices.size() <= 0)
-	{
-		std::cerr << "devices is empty" << std::endl;
-		exit(-1);
-	}
+	showDeviceInfo(platforms,devices);
 
-	std::cout << "num devices\t\t" << devices.size() << "\n\n";
-
-
-	int i = 1;
-	for(auto device = devices.begin(); device != devices.end(); device++, i++)
-	{
-		auto vendor = device->getInfo<CL_DEVICE_VENDOR>();
-		auto version = device->getInfo<CL_DEVICE_VERSION>();
-
-		std::cout << "Device: \t" << i << "\n";
-		std::cout << "Vendor: \t" << vendor << "\n";
-		std::cout << "Version:\t" << version << "\n\n";
-	}
 	auto device = devices.front();
 
 	std::ifstream helloWorldFile("CLfiles/helloWorld.cl");
-	if(helloWorldFile.is_open()) { std::cout << "is open\n"; }
+
 	std::string src = std::string(std::istreambuf_iterator<char>(helloWorldFile),(std::istreambuf_iterator<char>()));
 
 	cl::Program::Sources sources(1,std::make_pair(src.c_str(), src.length() + 1));
@@ -72,15 +42,17 @@ int main()
 	queue.enqueueTask(kernel);
 	queue.enqueueReadBuffer(memBuf, CL_TRUE, 0, sizeof(buf), buf);
 
-	std::cout << "buf:\n";
 	std::cout << buf;
-	std::cout << "done\n";
+
 	return 0;
 }
 
-cl::Device& getDevice(int i)
+void showDeviceInfo(std::vector<cl::Platform>& platforms, std::vector<cl::Device>& devices)
 {
-	std::vector<cl::Platform> platforms;
+	for(int i = 0; i < 40; i++)
+		std::cout << "-";
+	std::cout << "\n";
+//	std::vector<cl::Platform> platforms;
 	cl::Platform::get(&platforms);
 
 	if(platforms.size() <= 0)
@@ -92,36 +64,7 @@ cl::Device& getDevice(int i)
 	std::cout << "num platforms\t" << platforms.size() << "\n";
 
 	auto platform = platforms.front();
-	std::vector<cl::Device> devices;
-	platform.getDevices(CL_DEVICE_TYPE_ALL, &devices);
-
-	if(devices.size() <= 0)
-	{
-		std::cerr << "devices is empty" << std::endl;
-		exit(-1);
-	}
-
-	return devices.at(i);
-
-	//auto device = devices.front();
-
-}
-
-void showDeviceInfo()
-{
-	std::vector<cl::Platform> platforms;
-	cl::Platform::get(&platforms);
-
-	if(platforms.size() <= 0)
-	{
-		std::cerr << "platforms is empty" << std::endl;
-		exit(-1);
-	}
-
-	std::cout << "num platforms\t" << platforms.size() << "\n";
-
-	auto platform = platforms.front();
-	std::vector<cl::Device> devices;
+//	std::vector<cl::Device> devices;
 	platform.getDevices(CL_DEVICE_TYPE_ALL, &devices);
 
 	if(devices.size() <= 0)
@@ -132,7 +75,6 @@ void showDeviceInfo()
 
 	std::cout << "num devices\t\t" << devices.size() << "\n\n";
 
-	//auto device = devices.front();
 	int i = 1;
 	for(auto device = devices.begin(); device != devices.end(); device++, i++)
 	{
@@ -143,4 +85,9 @@ void showDeviceInfo()
 		std::cout << "Vendor: \t" << vendor << "\n";
 		std::cout << "Version:\t" << version << "\n\n";
 	}
+
+	for(int i = 0; i < 40; i++)
+		std::cout << "-";
+
+	std::cout << "\n";
 }
