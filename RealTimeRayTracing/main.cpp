@@ -55,7 +55,7 @@ void showDeviceInfo(std::vector<cl::Platform>& platforms, std::vector<cl::Device
 //	std::vector<cl::Platform> platforms;
 	cl::Platform::get(&platforms);
 
-	if(platforms.size() <= 0)
+	if(platforms.empty())
 	{
 		std::cerr << "platforms is empty" << std::endl;
 		exit(-1);
@@ -67,7 +67,7 @@ void showDeviceInfo(std::vector<cl::Platform>& platforms, std::vector<cl::Device
 //	std::vector<cl::Device> devices;
 	platform.getDevices(CL_DEVICE_TYPE_ALL, &devices);
 
-	if(devices.size() <= 0)
+	if(devices.empty())
 	{
 		std::cerr << "devices is empty" << std::endl;
 		exit(-1);
