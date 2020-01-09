@@ -1,5 +1,5 @@
 #ifdef _WIN32
-//#pragma warning(disable : 4996)//im not using the deprecited functions
+#pragma warning(disable : 4996)
 #endif
 #include <CL/cl.hpp>
 #include <iostream>
