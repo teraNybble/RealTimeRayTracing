@@ -1,28 +1,41 @@
 #ifdef _WIN32
 #pragma warning(disable : 4996)
 #endif
-#include <CL/cl.hpp>
+#include "clHelp.h"
 #include <iostream>
 #include <fstream>
+/**************************************************
+ ****************** USEFUL LINKS ******************
+ * https://www.youtube.com/watch?v=8D6yhpiQVVI
+ * https://www.youtube.com/watch?v=RKyhHonQMbw
+ **************************************************/
 
 void initDevices(std::vector<cl::Platform>& platforms, std::vector<cl::Device>& devices, int deviceType);
 cl::Program createProgram(const std::string& file);
 void printDeviceInfo(const std::vector<cl::Device>& devices);
 
+//write openCL script that returns the x,y coordinates in const char* form
+//this will allow me to prove that I know that I can write an openCL script
+//that can work as if it was 2D as this will be useful for figuring out
+//what colour each pixel is on a screen.
+
 int main()
 {
-	cl::Program program = createProgram("CLfiles/helloWorld.cl");
+	cl::Program program = createProgram("CLfiles/2Dcoords.cl");
 	cl::Context context = program.getInfo<CL_PROGRAM_CONTEXT>();
-	cl::Device device = context.getInfo<CL_CONTEXT_DEVICES>().front();
+	cl::Device  device  = context.getInfo<CL_CONTEXT_DEVICES>().front();
 
-	char buf[16];
+	char buf[7100];//16*9*4
 	cl::Buffer memBuf(context, CL_MEM_WRITE_ONLY | CL_MEM_HOST_READ_ONLY, sizeof(buf));
-	cl::Kernel kernel(program, "HelloWorld");
+	cl::Kernel kernel(program, "getXY");
 
 	kernel.setArg(0, memBuf);
 
+	cl::NDRange screenRange(16,9);
+
 	cl::CommandQueue queue(context, device);
-	queue.enqueueTask(kernel);
+	//queue.enqueueTask(kernel);
+	queue.enqueueNDRangeKernel(kernel,0,screenRange);
 	queue.enqueueReadBuffer(memBuf, CL_TRUE, 0, sizeof(buf), buf);
 
 	std::cout << buf;
@@ -32,7 +45,7 @@ int main()
 
 void initDevices(std::vector<cl::Platform>& platforms, std::vector<cl::Device>& devices, int deviceType)
 {
-#pragma unroll
+//#pragma unroll
 	for(int i = 0; i < 40; i++)
 		std::cout << "-";
 	std::cout << "\n";
@@ -70,7 +83,7 @@ void initDevices(std::vector<cl::Platform>& platforms, std::vector<cl::Device>& 
 		std::cout << "Vendor: \t" << vendor << "\n";
 		std::cout << "Version:\t" << version << "\n\n";
 	}
-#pragma unroll
+//#pragma unroll
 	for(int i = 0; i < 40; i++)
 		std::cout << "-";
 	std::cout << "\n";
@@ -130,7 +143,7 @@ cl::Program createProgram(const std::string& file)
 
 	auto error = program.build("-cl-std=CL1.2");
 
-	if(error) { std::cerr << "OpenCL error:\t" << error << std::endl; exit(error); }
+	if(error) { std::cerr << "OpenCL error:\t" << getErrorString(error) << std::endl; exit(error); }
 
 	return program;
 }
