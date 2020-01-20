@@ -1,3 +1,5 @@
+#include "Engine.h"
+
 #ifdef _WIN32
 #pragma warning(disable : 4996)
 #endif
@@ -9,6 +11,10 @@
  * https://www.youtube.com/watch?v=8D6yhpiQVVI
  * https://www.youtube.com/watch?v=RKyhHonQMbw
  **************************************************/
+#define to_kB(b) ({b/1024.0;})
+#define to_MB(b) ({to_kB(b)/1024.0;})
+#define to_GB(b) ({to_MB(b)/1024.0;})
+
 
 void initDevices(std::vector<cl::Platform>& platforms, std::vector<cl::Device>& devices, int deviceType);
 cl::Program createProgram(const std::string& file);
@@ -21,6 +27,7 @@ void printDeviceInfo(const std::vector<cl::Device>& devices);
 
 int main()
 {
+
 	cl::Program program = createProgram("CLfiles/2Dcoords.cl");
 	cl::Context context = program.getInfo<CL_PROGRAM_CONTEXT>();
 	cl::Device  device  = context.getInfo<CL_CONTEXT_DEVICES>().front();
@@ -38,9 +45,13 @@ int main()
 	queue.enqueueNDRangeKernel(kernel,0,screenRange);
 	queue.enqueueReadBuffer(memBuf, CL_TRUE, 0, sizeof(buf), buf);
 
+	//cl_float3 test;
+
 	std::cout << buf;
 
-	return 0;
+	Engine engine;
+
+	return engine.mainLoop();
 }
 
 void initDevices(std::vector<cl::Platform>& platforms, std::vector<cl::Device>& devices, int deviceType)
@@ -98,10 +109,16 @@ void printDeviceInfo(const std::vector<cl::Device>& devices)
 	{
 		auto vendor = device->getInfo<CL_DEVICE_VENDOR>();
 		auto version = device->getInfo<CL_DEVICE_VERSION>();
+		auto gmem = device->getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>();//in bytes
+		auto lmem = device->getInfo<CL_DEVICE_LOCAL_MEM_SIZE>();//in bytes
+		auto cmem = device->getInfo<CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE>();//in bytes
 
-		std::cout << "Device: \t\t" << i << "\n";
-		std::cout << "Vendor: \t\t" << vendor << "\n";
-		std::cout << "Version:\t\t" << version << "\n\n";
+		std::cout << "Device: \t\t\t" << i << "\n";
+		std::cout << "Vendor: \t\t\t" << vendor << "\n";
+		std::cout << "Version:\t\t\t" << version << "\n";
+		std::cout << "Global Memory:\t\t" << to_GB(gmem) << " GB\n";
+		std::cout << "Local Memory:\t\t" << to_kB(lmem) << " kB\n";
+		std::cout << "Constant Memory:\t" << to_kB(cmem) << " kB\n\n";
 	}
 }
 
