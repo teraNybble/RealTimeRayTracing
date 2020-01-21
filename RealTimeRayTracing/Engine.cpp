@@ -3,6 +3,17 @@
 int Engine::screenWidth = 480;
 int Engine::screenHeight = 480;
 std::map<int,bool> Engine::keyMap;
+GLubyte* Engine::screenImage;
+int Engine::numOfVerts = 4;
+int Engine::numOfTris  = 2;
+float Engine::verts[12];
+float Engine::tris[6];
+unsigned int Engine::vaoID;
+unsigned int Engine::vboID[2];
+float Engine::colours[12];
+GLuint Engine::ibo;
+Shader* Engine::screenShader;
+Cube Engine::testCube;
 
 void Engine::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -56,6 +67,29 @@ void Engine::display()
 		myCube1.render();
 	}
 */
+/*
+	if(screenShader == NULL)
+	{
+		std::cerr << "Error: shader NULL pointer" << std::endl;
+		return;
+	}
+//	glUniformMatrix4fv(glGetUniformLocation(screenShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &matrix[0][0]);
+
+	//draw objects
+	glBindVertexArray(vaoID);		// select VAO
+
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glDrawElements(GL_TRIANGLES, numOfTris*3, GL_UNSIGNED_INT, 0);
+
+	// Done
+
+	glBindVertexArray(0); //unbind the vertex array object
+	*/
+	glUseProgram(screenShader->handle());
+
+	testCube.render();
+
 	glUseProgram(0); //turn off the current shader
 }
 
@@ -69,11 +103,29 @@ void Engine::init()
 	//glClear(GL_COLOR_BUFFER_BIT) in the display function//will clear the buffer to this colour.
 
 	// Shaders
-	/*
-	if (myShader.load("BasicView", "glslfiles/basicTransformations.vert", "glslfiles/basicTransformations.frag") == 0)
+	screenShader = new Shader();
+	if (screenShader->load("screen", "glslfiles/screen.vert", "glslfiles/screen.frag") == 0)
 	{
 		std::cerr << "failed to load shader" << std::endl;
-	}*/
+	}
+
+	GLubyte temp[screenHeight][screenWidth][3];
+	screenImage = new GLubyte[screenHeight*screenWidth*3];
+
+	//arr[a][b][c];
+	//a + width * (b + depth * c)
+	for (int i = 0; i < screenHeight; i++)
+	{
+		for (int j = 0; j < screenWidth; j++)
+		{
+			screenImage[i + screenWidth * (j + 3 * 0)] = 255;//R
+			screenImage[i + screenWidth * (j + 3 * 1)] = 0;//G
+			screenImage[i + screenWidth * (j + 3 * 2)] = 0;//B
+		}
+	}
+
+	testCube.setDimetions(15,15,15);
+	testCube.constructGeometry(screenShader);
 
 	glEnable(GL_DEPTH_TEST);
 }
@@ -104,6 +156,51 @@ void Engine::reshape(GLFWwindow* window, int width, int height)
 
 	glUseProgram(0);
 */
+}
+
+void Engine::createScreenImage()
+{
+	verts[0x0] = -1; verts[0x1] = -1; verts[0x2] = +0;
+	verts[0x3] = -1; verts[0x4] = +1; verts[0x5] = +0;
+	verts[0x6] = +1; verts[0x7] = +1; verts[0x8] = +0;
+	verts[0x9] = +1; verts[0xA] = -1; verts[0xB] = +0;
+
+	colours[0x0] = 0.51; colours[0x1] = 0.51; colours[0x2] = 0.51;
+	colours[0x3] = 0.51; colours[0x4] = 0.51; colours[0x5] = 0.51;
+	colours[0x6] = 0.51; colours[0x7] = 0.51; colours[0x8] = 0.51;
+	colours[0x9] = 0.51; colours[0xA] = 0.51; colours[0xB] = 0.51;
+
+	tris[0] = 0; tris[1] = 1; tris[2] = 2;
+	tris[3] = 0; tris[4] = 2; tris[5] = 3;
+
+	glGenVertexArrays(1, &vaoID);
+
+	glBindVertexArray(vaoID);
+
+	glGenBuffers(2, vboID);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vboID[0]);
+	glBufferData(GL_ARRAY_BUFFER, numOfVerts*3* sizeof(float), verts, GL_STATIC_DRAW);
+	GLint vertexLocation= glGetAttribLocation(screenShader->handle(), "in_Position");
+	glVertexAttribPointer(vertexLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(vertexLocation);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vboID[1]);
+	glBufferData(GL_ARRAY_BUFFER, numOfVerts*3*sizeof(float), colours, GL_STATIC_DRAW);
+	GLint colorLocation= glGetAttribLocation(screenShader->handle(), "in_Color");
+	glVertexAttribPointer(colorLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(colorLocation);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glGenBuffers(1, &ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numOfTris * 3 * sizeof(float), tris, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	glEnableVertexAttribArray(0);
+
+	glBindVertexArray(0);
 }
 
 bool Engine::createWindow()
@@ -141,6 +238,7 @@ bool Engine::createWindow()
 
 	init();
 	reshape(window, screenWidth, screenHeight);
+	createScreenImage();
 	return true;
 }
 
