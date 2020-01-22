@@ -7,7 +7,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 file(GLOB SOURCE_FILES RealTimeRayTracing/*.cpp)
 
-add_executable(RealTimeRayTracing ${SOURCE_FILES} RealTimeRayTracing/clHelp.h RealTimeRayTracing/clHelp.cpp RealTimeRayTracing/Engine.cpp RealTimeRayTracing/Engine.h RealTimeRayTracing/shaders/Shader.cpp RealTimeRayTracing/Cube.cpp RealTimeRayTracing/Pos3.cpp)
+add_executable(RealTimeRayTracing ${SOURCE_FILES} RealTimeRayTracing/clHelp.h RealTimeRayTracing/clHelp.cpp RealTimeRayTracing/Engine.cpp RealTimeRayTracing/Engine.h RealTimeRayTracing/shaders/Shader.cpp RealTimeRayTracing/Cube.cpp RealTimeRayTracing/Pos3.cpp RealTimeRayTracing/main.cpp)
 
 INCLUDE(FindPkgConfig)
 

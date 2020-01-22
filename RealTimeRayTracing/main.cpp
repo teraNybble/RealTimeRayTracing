@@ -1,166 +1,322 @@
-#include "Engine.h"
+#include <iostream>
+#include <iomanip>
+#include <math.h>
 
 #ifdef _WIN32
-#pragma warning(disable : 4996)
-#endif
-#include "clHelp.h"
-#include <iostream>
-#include <fstream>
-/**************************************************
- ****************** USEFUL LINKS ******************
- * https://www.youtube.com/watch?v=8D6yhpiQVVI
- * https://www.youtube.com/watch?v=RKyhHonQMbw
- **************************************************/
-#define to_kB(b) ({b/1024.0;})
-#define to_MB(b) ({to_kB(b)/1024.0;})
-#define to_GB(b) ({to_MB(b)/1024.0;})
+#include "gl/glew.h"
+#include "gl/wglew.h"
+#pragma comment(lib, "glew32.lib")
+#else
+#include "gl/glew.h"
+#endif // _WIN32
+
+#include "shaders/Shader.h"
+//#include "gl/glew.h"
+
+#include "../include/glm/glm.hpp"
+#include "../include/glm/gtc/matrix_transform.hpp"
+
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
+
+#include "MatrixRoutines.h"
+#include "Cube.h"
+
+float spinY = 0.0f;
+float camRot = 0.0f;
+
+unsigned int m_vaoID;
+unsigned int m_vboID[2];
+GLuint ibo;
+
+const int numOfVerts = 8;
+const int numOfTris = 12;
+float verts[24];
+float cols[24];
+unsigned int tris[36];
+
+float x = 0, y = 0, z = 0;
+
+Shader myShader;
+Cube myCube, myCube1;
+
+int screenWidth = 480, screenHeight = 480;
+/*
+float ProjectionMatrix[16]; // matrix for the orthographic projection
+float ModelViewMatrix[16];  // matrix for the modelling and viewing
+*/
+
+glm::mat4 ProjectionMatrix;
+glm::mat4 ModelViewMatrix;
+
+void display()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glUseProgram(myShader.handle());  // use the shader
+
+	//All of our geometry will have the same projection matrix.
+	//we only need to set it once, since we are using the same shader.
+	GLuint matLocation = glGetUniformLocation(myShader.handle(), "ProjectionMatrix");
+	glUniformMatrix4fv(matLocation, 1, GL_FALSE, &ProjectionMatrix[0][0]);
+
+	//increment the spin variable per frame.
+	spinY += 1.0f;
+	if (spinY > 360) spinY = 0;
+
+	glm::mat4 viewMatrix;
+	//				where the camera is, what the camera is looking at, what axis is up
+	viewMatrix = glm::lookAt(glm::vec3(0,0,50),glm::vec3(0,0,0),glm::vec3(0,1,0));
+	ModelViewMatrix = glm::translate(viewMatrix,glm::vec3(0,0,0));
+	//ModelViewMatrix = glm::rotate(ModelViewMatrix,camRot,glm::vec3(0,1,0));
+
+	//apply the camera view transformations
+	myCube.setMatrix(ModelViewMatrix);
 
 
-void initDevices(std::vector<cl::Platform>& platforms, std::vector<cl::Device>& devices, int deviceType);
-cl::Program createProgram(const std::string& file);
-void printDeviceInfo(const std::vector<cl::Device>& devices);
+	//glUniformMatrix4fv(glGetUniformLocation(myShader.handle(),"ModelViewMatrix"),1,GL_FALSE, &myCube.getMatrix()[0][0]);
+	//glUniformMatrix4fv(glGetUniformLocation(myShader.handle(),"ModelViewMatrix"),1,GL_FALSE, &myCube1.getMatrix()[0][0]);
 
-//write openCL script that returns the x,y coordinates in const char* form
-//this will allow me to prove that I know that I can write an openCL script
-//that can work as if it was 2D as this will be useful for figuring out
-//what colour each pixel is on a screen.
+	myCube.translate(x, y, z);
+	myCube.rotate(0, spinY, 0);
+	myCube.render();
+	glm::vec3 temp;
+	temp.x;
+
+	for (int i = 0; i < 8; i++)
+	{
+		//myCube1.resetMatrix();
+		myCube1.setMatrix(ModelViewMatrix);
+		myCube1.translate(x, y, z);
+		myCube1.rotate(0, spinY, 0);
+		myCube1.translate((i & (1 << 2) ? -7.5f : 7.5f), (i & (1 << 1) ? -7.5f : 7.5f), (i & (1 << 0) ? -7.5f : 7.5f));
+		myCube1.rotate(0, -spinY, 0);
+		myCube1.render();
+	}
+
+	glUseProgram(0); //turn off the current shader
+}
+
+void createGeometry()
+{
+	// First simple object
+	float dim = 0.5;
+	verts[0] = -dim;   verts[1] = -dim;  verts[2] = -dim;
+	verts[3] = -dim;   verts[4] = dim;  verts[5] = -dim;
+	verts[6] = dim;   verts[7] = dim;  verts[8] = -dim;
+	verts[9] = dim;   verts[10] = -dim;  verts[11] = -dim;
+
+	verts[12] = -dim;   verts[13] = -dim;  verts[14] = dim;
+	verts[15] = -dim;   verts[16] = dim;  verts[17] = dim;
+	verts[18] = dim;   verts[19] = dim;  verts[20] = dim;
+	verts[21] = dim;   verts[22] = -dim;  verts[23] = dim;
+
+	cols[0] = 1.0;   cols[1] = 0.0;  cols[2] = 0.0;
+	cols[3] = 0.0;   cols[4] = 1.0;  cols[5] = 0.0;
+	cols[6] = 0.0;   cols[7] = 0.0;  cols[8] = 1.0;
+	cols[9] = 1.0;   cols[10] = 1.0;  cols[11] = 0.0;
+
+	cols[12] = 1.0;   cols[13] = 0.0;  cols[14] = 0.0;
+	cols[15] = 0.0;   cols[16] = 1.0;  cols[17] = 0.0;
+	cols[18] = 0.0;   cols[19] = 0.0;  cols[20] = 1.0;
+	cols[21] = 1.0;   cols[22] = 1.0;  cols[23] = 0.0;
+
+	tris[0] = 0; tris[1] = 1; tris[2] = 2;
+	tris[3] = 0; tris[4] = 2; tris[5] = 3;
+	tris[6] = 4; tris[7] = 6; tris[8] = 5;
+	tris[9] = 4; tris[10] = 7; tris[11] = 6;
+	tris[12] = 1; tris[13] = 5; tris[14] = 6;
+	tris[15] = 1; tris[16] = 6; tris[17] = 2;
+	tris[18] = 0; tris[19] = 7; tris[20] = 4;
+	tris[21] = 0; tris[22] = 3; tris[23] = 7;
+	tris[24] = 0; tris[25] = 5; tris[26] = 1;
+	tris[27] = 0; tris[28] = 4; tris[29] = 5;
+	tris[30] = 3; tris[31] = 2; tris[32] = 7;
+	tris[33] = 2; tris[34] = 6; tris[35] = 7;
+
+	// VAO allocation
+	glGenVertexArrays(1, &m_vaoID);
+
+	// First VAO setup
+	glBindVertexArray(m_vaoID);
+
+	glGenBuffers(2, m_vboID);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboID[0]);
+	//initialises data storage of vertex buffer object
+	glBufferData(GL_ARRAY_BUFFER, numOfVerts * 3 * sizeof(GLfloat), verts, GL_STATIC_DRAW);
+	GLint vertexLocation = glGetAttribLocation(myShader.handle(), "in_Position");
+	glVertexAttribPointer(vertexLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(vertexLocation);
+
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboID[1]);
+	glBufferData(GL_ARRAY_BUFFER, numOfVerts * 3 * sizeof(GLfloat), cols, GL_STATIC_DRAW);
+	GLint colorLocation = glGetAttribLocation(myShader.handle(), "in_Color");
+	glVertexAttribPointer(colorLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(colorLocation);
+
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glGenBuffers(1, &ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numOfTris * 3 * sizeof(unsigned int), tris, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	glEnableVertexAttribArray(0);
+
+	glBindVertexArray(0);
+}
+
+void init()
+{
+
+	glClearColor(0.0, 0.0, 0.0, 0.0);						//sets the clear colour
+	//glClear(GL_COLOR_BUFFER_BIT) in the display function//will clear the buffer to this colour.
+
+	// Shaders
+
+	if (myShader.load("BasicView", "glslfiles/basicTransformations.vert", "glslfiles/basicTransformations.frag") == 0)
+	{
+		std::cerr << "failed to load shader" << std::endl;
+	}
+
+	//createGeometry();
+
+
+	myCube.setDimetions(15, 15, 15);
+	myCube.constructGeometry(&myShader);
+
+	myCube1.setDimetions(2, 2, 2);
+	myCube1.constructGeometry(&myShader);
+
+	glEnable(GL_DEPTH_TEST);
+}
+
+void reshape(int width, int height)
+{
+	screenWidth = width;
+	screenHeight = height;
+
+	glViewport(0, 0, width, height);
+
+	ProjectionMatrix = glm::perspective(60.0f, (GLfloat)screenWidth/(GLfloat)screenHeight, 1.0f, 200.0f);
+	//MatrixRoutines<float>::perspective(60, (GLfloat)screenWidth / (GLfloat)screenHeight, 1, 200, ProjectionMatrix);
+}
+
+GLFWwindow* window;
+bool createWindow()
+{
+	if (!glfwInit())
+	{
+		std::cerr << "failed to init glfw with error: 0x" << std::hex << std::setw(8) << std::setfill('0') << glfwGetError(NULL) << "\n";
+		return false;
+	}
+
+	//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+
+	/* Create a windowed mode window and its OpenGL context */
+	window = glfwCreateWindow(screenWidth, screenHeight, "OpenGL test", NULL, NULL);
+	if (!window)
+	{
+		std::cerr << "failed to create window\n";
+		glfwTerminate();
+		return false;
+	}
+
+	//glViewport(0, 0, screenWidth, screenHeight);
+
+	/* Make the window's context current */
+	glfwMakeContextCurrent(window);
+
+	if (!glewInit())
+	{
+		std::cerr << "failed to init glew" << std::endl;
+	}
+
+	const GLubyte* GLVersionString = glGetString(GL_VERSION);
+	std::cout << "OpenGL version is: " << GLVersionString << "\n";
+
+	init();
+	reshape(screenWidth, screenHeight);
+	return true;
+}
+
+void processEvents()
+{
+	glfwPollEvents();
+
+	if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	{
+		z-=0.5f;
+	}
+	if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	{
+		z+=0.5f;
+	}
+
+	if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	{
+		x-=0.5f;
+	}
+	if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	{
+		x+=0.5f;
+	}
+
+	if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+	{
+		y+=0.5f;
+	}
+	if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+	{
+		y-=0.5f;
+	}
+
+	if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+	{
+		camRot -= 0.01f;
+		if(camRot < 0) { camRot += 2*PI; }
+	}
+	if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+	{
+		camRot += 0.01f;
+		if(camRot > 2*PI) { camRot -= 2*PI; }
+	}
+
+
+}
+/*
+int main()
+{
+	//create openGL window
+	if (!createWindow())
+		return -1;
+
+	glfwSwapInterval(1);
+
+	//init();
+
+	while (!glfwWindowShouldClose(window))
+	{
+		//process mouse and keyboard
+		display();
+		//swap buffers
+		glfwSwapBuffers(window);
+		processEvents();
+	}
+
+	glfwTerminate();
+	return 0;
+}*/
+
+#include "Engine.h"
 
 int main()
 {
-
-	cl::Program program = createProgram("CLfiles/2Dcoords.cl");
-	cl::Context context = program.getInfo<CL_PROGRAM_CONTEXT>();
-	cl::Device  device  = context.getInfo<CL_CONTEXT_DEVICES>().front();
-
-	char buf[7100];//16*9*4
-	cl::Buffer memBuf(context, CL_MEM_WRITE_ONLY | CL_MEM_HOST_READ_ONLY, sizeof(buf));
-	cl::Kernel kernel(program, "getXY");
-
-	kernel.setArg(0, memBuf);
-
-	cl::NDRange screenRange(16,9);
-
-	cl::CommandQueue queue(context, device);
-	//queue.enqueueTask(kernel);
-	queue.enqueueNDRangeKernel(kernel,0,screenRange);
-	queue.enqueueReadBuffer(memBuf, CL_TRUE, 0, sizeof(buf), buf);
-
-	//cl_float3 test;
-
-	std::cout << buf;
-
 	Engine engine;
 
 	return engine.mainLoop();
-}
-
-void initDevices(std::vector<cl::Platform>& platforms, std::vector<cl::Device>& devices, int deviceType)
-{
-//#pragma unroll
-	for(int i = 0; i < 40; i++)
-		std::cout << "-";
-	std::cout << "\n";
-//	std::vector<cl::Platform> platforms;
-	cl::Platform::get(&platforms);
-
-	if(platforms.empty())
-	{
-		std::cerr << "platforms is empty" << std::endl;
-		exit(-1);
-	}
-
-	std::cout << "num platforms\t" << platforms.size() << "\n";
-
-	auto platform = platforms.front();
-//	std::vector<cl::Device> devices;
-	//platform.getDevices(CL_DEVICE_TYPE_ALL, &devices);
-	platform.getDevices(deviceType, &devices);
-
-	if(devices.empty())
-	{
-		std::cerr << "devices is empty" << std::endl;
-		exit(-1);
-	}
-
-	std::cout << "num devices\t\t" << devices.size() << "\n\n";
-
-	int i = 1;
-	for(auto device = devices.begin(); device != devices.end(); device++, i++)
-	{
-		auto vendor = device->getInfo<CL_DEVICE_VENDOR>();
-		auto version = device->getInfo<CL_DEVICE_VERSION>();
-
-		std::cout << "Device: \t" << i << "\n";
-		std::cout << "Vendor: \t" << vendor << "\n";
-		std::cout << "Version:\t" << version << "\n\n";
-	}
-//#pragma unroll
-	for(int i = 0; i < 40; i++)
-		std::cout << "-";
-	std::cout << "\n";
-}
-
-void printDeviceInfo(const std::vector<cl::Device>& devices)
-{
-	std::cout << "num devices\t\t" << devices.size() << "\n\n";
-
-	int i = 1;
-	for(auto device = devices.begin(); device != devices.end(); device++, i++)
-	{
-		auto vendor = device->getInfo<CL_DEVICE_VENDOR>();
-		auto version = device->getInfo<CL_DEVICE_VERSION>();
-		auto gmem = device->getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>();//in bytes
-		auto lmem = device->getInfo<CL_DEVICE_LOCAL_MEM_SIZE>();//in bytes
-		auto cmem = device->getInfo<CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE>();//in bytes
-
-		std::cout << "Device: \t\t\t" << i << "\n";
-		std::cout << "Vendor: \t\t\t" << vendor << "\n";
-		std::cout << "Version:\t\t\t" << version << "\n";
-		std::cout << "Global Memory:\t\t" << to_GB(gmem) << " GB\n";
-		std::cout << "Local Memory:\t\t" << to_kB(lmem) << " kB\n";
-		std::cout << "Constant Memory:\t" << to_kB(cmem) << " kB\n\n";
-	}
-}
-
-//code 'borrowed' from: https://www.youtube.com/watch?v=N0H0NCoOTUA
-cl::Program createProgram(const std::string& file)
-{
-	for(int i = 0; i < 40; i++)
-		std::cout << "-";
-	std::cout << "\n";
-
-	std::vector<cl::Platform> platforms;
-	cl::Platform::get(&platforms);
-
-	//if the platforms are empty there is no point to running the code
-	if(platforms.empty()) { std::cerr << "platforms is empty" << std::endl;	exit(1); }
-	std::cout << "num platforms\t" << platforms.size() << "\n";
-
-	auto platform = platforms.front();
-	std::vector<cl::Device> devices;
-	platform.getDevices(CL_DEVICE_TYPE_GPU, &devices);
-	auto device = devices.front();
-
-	//if there are no devices then we can't use OpenCL
-	if(devices.empty()) { std::cerr << "devices is empty" << std::endl;	exit(2); }
-
-	printDeviceInfo(devices);
-
-	for(int i = 0; i < 40; i++)
-		std::cout << "-";
-	std::cout << "\n";
-
-	std::ifstream clFile(file);
-	std::string src(std::istreambuf_iterator<char>(clFile), (std::istreambuf_iterator<char>()));
-
-	cl::Program::Sources sources(1,std::make_pair(src.c_str(), src.length() + 1));
-
-	cl::Context context(device);
-	cl::Program program(context,sources);
-
-	auto error = program.build("-cl-std=CL1.2");
-
-	if(error) { std::cerr << "OpenCL error:\t" << getErrorString(error) << std::endl; exit(error); }
-
-	return program;
 }
