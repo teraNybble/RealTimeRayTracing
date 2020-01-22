@@ -15,8 +15,6 @@
 #define to_MB(b) ({to_kB(b)/1024.0;})
 #define to_GB(b) ({to_MB(b)/1024.0;})
 
-
-void initDevices(std::vector<cl::Platform>& platforms, std::vector<cl::Device>& devices, int deviceType);
 cl::Program createProgram(const std::string& file);
 void printDeviceInfo(const std::vector<cl::Device>& devices);
 
@@ -24,7 +22,6 @@ void printDeviceInfo(const std::vector<cl::Device>& devices);
 //this will allow me to prove that I know that I can write an openCL script
 //that can work as if it was 2D as this will be useful for figuring out
 //what colour each pixel is on a screen.
-
 
 int main()
 {
@@ -54,53 +51,6 @@ int main()
 	return engine.mainLoop();
 }
 
-
-void initDevices(std::vector<cl::Platform>& platforms, std::vector<cl::Device>& devices, int deviceType)
-{
-//#pragma unroll
-	for(int i = 0; i < 40; i++)
-		std::cout << "-";
-	std::cout << "\n";
-//	std::vector<cl::Platform> platforms;
-	cl::Platform::get(&platforms);
-
-	if(platforms.empty())
-	{
-		std::cerr << "platforms is empty" << std::endl;
-		exit(-1);
-	}
-
-	std::cout << "num platforms\t" << platforms.size() << "\n";
-
-	auto platform = platforms.front();
-//	std::vector<cl::Device> devices;
-	//platform.getDevices(CL_DEVICE_TYPE_ALL, &devices);
-	platform.getDevices(deviceType, &devices);
-
-	if(devices.empty())
-	{
-		std::cerr << "devices is empty" << std::endl;
-		exit(-1);
-	}
-
-	std::cout << "num devices\t\t" << devices.size() << "\n\n";
-
-	int i = 1;
-	for(auto device = devices.begin(); device != devices.end(); device++, i++)
-	{
-		auto vendor = device->getInfo<CL_DEVICE_VENDOR>();
-		auto version = device->getInfo<CL_DEVICE_VERSION>();
-
-		std::cout << "Device: \t" << i << "\n";
-		std::cout << "Vendor: \t" << vendor << "\n";
-		std::cout << "Version:\t" << version << "\n\n";
-	}
-//#pragma unroll
-	for(int i = 0; i < 40; i++)
-		std::cout << "-";
-	std::cout << "\n";
-}
-
 void printDeviceInfo(const std::vector<cl::Device>& devices)
 {
 	std::cout << "num devices\t\t" << devices.size() << "\n\n";
@@ -110,9 +60,9 @@ void printDeviceInfo(const std::vector<cl::Device>& devices)
 	{
 		auto vendor = device->getInfo<CL_DEVICE_VENDOR>();
 		auto version = device->getInfo<CL_DEVICE_VERSION>();
-		auto gmem = device->getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>();//in bytes
-		auto lmem = device->getInfo<CL_DEVICE_LOCAL_MEM_SIZE>();//in bytes
-		auto cmem = device->getInfo<CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE>();//in bytes
+		auto gmem = device->getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>();			//in bytes
+		auto lmem = device->getInfo<CL_DEVICE_LOCAL_MEM_SIZE>();			//in bytes
+		auto cmem = device->getInfo<CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE>();	//in bytes
 
 		std::cout << "Device: \t\t\t" << i << "\n";
 		std::cout << "Vendor: \t\t\t" << vendor << "\n";

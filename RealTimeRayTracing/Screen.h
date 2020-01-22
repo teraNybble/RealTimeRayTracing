@@ -14,13 +14,7 @@ const int NumberOfTriangleIndices = 6;
 
 class Screen
 {
-
 private:
-	//float dim;
-	//Pos3 pos;
-	glm::vec3 pos;
-	float width, height, depth;
-
 	unsigned int m_vaoID;		    // vertex array object
 	unsigned int m_vboID[2];		// two VBOs - used for colours and vertex data
 	GLuint ibo;                     //identifier for the triangle indices
@@ -40,26 +34,14 @@ private:
 	//give it a pos
 public:
 	Screen();
-	Screen(glm::vec3 pos, float width, float height, float depth);
 
 	inline void setShader(Shader* shader) { this->shader = shader; }
 
-	//void setDim(float d);
-	void setDimetions(float width, float height, float depth);
-	inline void setPos(glm::vec3 pos) { this->pos = pos; }
-
 	inline void resetMatrix() { matrix = glm::mat4(1.0); }
-
-	void translate(float x, float y, float z);
-	void rotate(float x, float y, float z);
-	//setTranslation
-	//setRotation
-
-	inline glm::mat4 getMatrix() { return matrix; }
 	inline void setMatrix(glm::mat4 mat) { matrix = mat; }
 
 	void constructGeometry(Shader* myShader);
-	void render(bool matrixReset = true);
+	void render();
 };
 
 
