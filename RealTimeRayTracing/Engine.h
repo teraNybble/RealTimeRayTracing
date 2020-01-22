@@ -4,6 +4,7 @@
 #include <iostream>
 #include <iomanip>
 #include <math.h>
+#include <map>
 
 #ifdef _WIN32
 #include "gl/glew.h"
@@ -24,6 +25,7 @@
 
 #include "MatrixRoutines.h"
 #include "Cube.h"
+#include "Screen.h"
 
 
 class Engine
@@ -45,9 +47,11 @@ private:
 	float x = 0, y = 0, z = 0;
 
 	Shader myShader;
-	Cube myCube, myCube1;
+	//Cube /*myCube, */myCube1;
+	Screen myCube;
 
 	static int screenWidth, screenHeight;
+	static std::map<int,bool> keyMap;
 /*
 float ProjectionMatrix[16]; // matrix for the orthographic projection
 float ModelViewMatrix[16];  // matrix for the modelling and viewing

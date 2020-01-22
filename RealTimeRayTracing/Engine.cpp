@@ -3,6 +3,7 @@
 int Engine::screenWidth = 480;
 int Engine::screenHeight = 480;
 glm::mat4 Engine::ProjectionMatrix;
+std::map<int,bool> Engine::keyMap;
 
 void Engine::display()
 {
@@ -32,12 +33,12 @@ void Engine::display()
 	//glUniformMatrix4fv(glGetUniformLocation(myShader.handle(),"ModelViewMatrix"),1,GL_FALSE, &myCube.getMatrix()[0][0]);
 	//glUniformMatrix4fv(glGetUniformLocation(myShader.handle(),"ModelViewMatrix"),1,GL_FALSE, &myCube1.getMatrix()[0][0]);
 
-	myCube.translate(x, y, z);
-	myCube.rotate(0, spinY, 0);
+	//myCube.translate(x, y, z);
+	//myCube.rotate(0, spinY, 0);
 	myCube.render();
 	glm::vec3 temp;
 	temp.x;
-
+/*
 	for (int i = 0; i < 8; i++)
 	{
 		//myCube1.resetMatrix();
@@ -48,7 +49,7 @@ void Engine::display()
 		myCube1.rotate(0, -spinY, 0);
 		myCube1.render();
 	}
-
+*/
 	glUseProgram(0); //turn off the current shader
 }
 
@@ -126,6 +127,9 @@ void Engine::createGeometry()
 
 void Engine::init()
 {
+	//Setup all callbacks here
+	glfwSetWindowSizeCallback(window, reshape);
+	glfwSetKeyCallback(window, key_callback);
 
 	glClearColor(0.0, 0.0, 0.0, 0.0);						//sets the clear colour
 	//glClear(GL_COLOR_BUFFER_BIT) in the display function//will clear the buffer to this colour.
@@ -140,13 +144,24 @@ void Engine::init()
 	//createGeometry();
 
 
-	myCube.setDimetions(15, 15, 15);
+	myCube.setDimetions(1, 1, 2);
 	myCube.constructGeometry(&myShader);
 
-	myCube1.setDimetions(2, 2, 2);
-	myCube1.constructGeometry(&myShader);
+	//myCube1.setDimetions(2, 2, 2);
+	//myCube1.constructGeometry(&myShader);
 
 	glEnable(GL_DEPTH_TEST);
+}
+
+void Engine::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	try
+	{
+		if (action == GLFW_PRESS)
+			keyMap.at(key) = true;
+		else if (action == GLFW_RELEASE)
+			keyMap.at(key) = false;
+	}catch(...) {}//if a non mapped key is pressed do nothing
 }
 
 void Engine::reshape(GLFWwindow* window, int width, int height)
@@ -169,7 +184,7 @@ bool Engine::createWindow()
 	}
 
 	//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
 	/* Create a windowed mode window and its OpenGL context */
 	window = glfwCreateWindow(screenWidth, screenHeight, "OpenGL test", NULL, NULL);
