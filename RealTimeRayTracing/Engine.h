@@ -41,13 +41,17 @@ private:
 	glm::mat4 ModelViewMatrix;
 
 	GLFWwindow* window;
-
+	static GLubyte* screenImage;
+	static GLubyte checkImage[64][64][4];
+	static GLuint texID;
 public:
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	void display();
 	void init();
 	static void reshape(GLFWwindow* window, int width, int height);
 	bool createWindow();
+	void createScreenImage();
+	void createCheckerBoard();
 	void processEvents();
 	int mainLoop();
 };

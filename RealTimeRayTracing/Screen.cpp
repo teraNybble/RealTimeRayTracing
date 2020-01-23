@@ -10,7 +10,7 @@ Screen::Screen()
 	resetMatrix();
 }
 
-void Screen::render()
+void Screen::render(GLuint texID)
 {
 	if(shader == NULL)
 	{
@@ -21,6 +21,14 @@ void Screen::render()
 
 	//draw objects
 	glBindVertexArray(m_vaoID);		// select VAO
+
+	glActiveTexture(GL_TEXTURE0);
+
+	//std::cout << "texID:\t" << texID << "\n";
+
+	glBindTexture(GL_TEXTURE_2D, texID);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
@@ -42,9 +50,9 @@ void Screen::constructGeometry(Shader* myShader)
 	verts[ 9] = -1;	verts[10] = -1;	verts[11] = -1;
 
 	//-----R-------		-------G-------		-------B-------
-	cols[ 0] = 1.0;		cols[ 1] = 0.0;		cols[ 2] = 0.0;
-	cols[ 3] = 0.0;		cols[ 4] = 1.0;		cols[ 5] = 0.0;
-	cols[ 6] = 0.0;		cols[ 7] = 0.0;		cols[ 8] = 1.0;
+	cols[ 0] = 1.0;		cols[ 1] = 1.0;		cols[ 2] = 1.0;
+	cols[ 3] = 1.0;		cols[ 4] = 1.0;		cols[ 5] = 1.0;
+	cols[ 6] = 1.0;		cols[ 7] = 1.0;		cols[ 8] = 1.0;
 	cols[ 9] = 1.0;		cols[10] = 1.0;		cols[11] = 1.0;
 
 	tris[ 0]=0; tris[ 1]=1; tris[ 2]=2;

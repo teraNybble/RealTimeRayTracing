@@ -4,6 +4,9 @@ int Engine::screenWidth = 480;
 int Engine::screenHeight = 480;
 glm::mat4 Engine::ProjectionMatrix;
 std::map<int,bool> Engine::keyMap;
+GLubyte* Engine::screenImage;
+GLubyte Engine::checkImage[64][64][4];
+GLuint Engine::texID;
 
 void Engine::display()
 {
@@ -24,7 +27,7 @@ void Engine::display()
 	//apply the camera view transformations
 	myCube.setMatrix(ModelViewMatrix);
 
-	myCube.render();
+	myCube.render(texID);
 	glm::vec3 temp;
 	glUseProgram(0); //turn off the current shader
 }
@@ -43,6 +46,8 @@ void Engine::init()
 	{
 		std::cerr << "failed to load shader" << std::endl;
 	}
+
+	createScreenImage();
 
 	myCube.constructGeometry(&myShader);
 
@@ -103,6 +108,76 @@ bool Engine::createWindow()
 	init();
 	reshape(window, screenWidth, screenHeight);
 	return true;
+}
+
+void Engine::createScreenImage()
+{
+	//GLuint texID;
+	GLubyte* image = NULL;
+
+	int width, height;
+	bool hasAlpha;
+
+	//allocate the space for the window texture
+	//screenImage = new GLubyte[screenHeight*screenWidth*4];
+	screenImage = new GLubyte[64*64*4];
+	//arr[a][b][c];
+	//a + width * (b + depth * c)
+	for(int i = 0; i < 64; i++)
+	{
+		for(int j = 0; j < 64; j++)
+		{
+			checkImage[i][j][0] = (GLubyte) 255;      //red
+			checkImage[i][j][1] = (GLubyte) 0;      //green
+			checkImage[i][j][2] = (GLubyte) 0;      //blue
+			checkImage[i][j][3] = (GLubyte) 255;    //alpha
+		}
+	}
+
+	for(int i = 0; i < 64; i++)
+	{
+		for(int j = 0; j < 64; j++)
+		{
+			std::cout << "Check colour:\t";
+			std::cout << checkImage[i][j][0] << " ";
+			std::cout << checkImage[i][j][1] << " ";
+			std::cout << checkImage[i][j][2] << " ";
+			std::cout << checkImage[i][j][3] << "\n";
+		}
+	}
+	/*
+
+	for (int i = 0; i < 64; i++)
+	{
+		for (int j = 0; j < 64; j++)
+		{
+			screenImage[i + screenWidth * (j + 3 * 0)] = (GLubyte)255;	//R
+			screenImage[i + screenWidth * (j + 3 * 1)] = (GLubyte)0;	//G
+			screenImage[i + screenWidth * (j + 3 * 2)] = (GLubyte)0;	//B
+			screenImage[i + screenWidth * (j + 3 * 3)] = (GLubyte)255;	//A
+		}
+	}
+	for(int i = 0; i < 64*64*4; i+=4)
+	{
+		std::cout << "Colour:\t";
+		std::cout << screenImage[i+0] << " ";
+		std::cout << screenImage[i+1] << " ";
+		std::cout << screenImage[i+2] << " ";
+		std::cout << screenImage[i+3] << "\n";
+	}
+	 */
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	glGenTextures(1, &texID);
+	glBindTexture(GL_TEXTURE_2D, texID);
+	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, /*img.getFormat()*/GL_RGBA, GL_UNSIGNED_BYTE, &image);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, screenWidth, screenHeight, 0, /*img.getFormat()*/GL_RGBA, GL_UNSIGNED_BYTE, checkImage);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16.0f);
 }
 
 void Engine::processEvents()

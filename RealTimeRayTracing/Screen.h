@@ -41,7 +41,7 @@ public:
 	inline void setMatrix(glm::mat4 mat) { matrix = mat; }
 
 	void constructGeometry(Shader* myShader);
-	void render();
+	void render(GLuint texID);
 };
 
 
