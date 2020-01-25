@@ -41,7 +41,7 @@ private:
 	glm::mat4 ModelViewMatrix;
 
 	GLFWwindow* window;
-	static GLubyte* screenImage;
+	static float* screenImage;
 	static GLuint texID;
 public:
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);

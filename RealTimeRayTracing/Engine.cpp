@@ -4,7 +4,7 @@ int Engine::screenWidth = 480;
 int Engine::screenHeight = 480;
 glm::mat4 Engine::ProjectionMatrix;
 std::map<int,bool> Engine::keyMap;
-GLubyte* Engine::screenImage;
+float* Engine::screenImage;
 GLuint Engine::texID;
 
 void Engine::display()
@@ -118,38 +118,45 @@ void Engine::createScreenImage()
 	bool hasAlpha;
 
 	//allocate the space for the window texture
-	screenImage = new GLubyte[screenHeight*screenWidth*4];
+	screenImage = new float[screenHeight*screenWidth*3];
 	//screenImage = new GLubyte[64*64*4];
 	//arr[a][b][c];
 	//a + width * (b + depth * c)
-
+/*
 	for (int i = 0; i < screenHeight; i++)
 	{
 		for (int j = 0; j < screenWidth; j++)
 		{
-			screenImage[i + screenWidth * (j + 3 * 0)] = (GLubyte)255;	//R
-			screenImage[i + screenWidth * (j + 3 * 1)] = (GLubyte)255;	//G
-			screenImage[i + screenWidth * (j + 3 * 2)] = (GLubyte)255;	//B
-			screenImage[i + screenWidth * (j + 3 * 3)] = (GLubyte)255;	//A
+			screenImage[i + screenWidth * (j + 3 * 0)] = 1.0f;	//R
+			screenImage[i + screenWidth * (j + 3 * 1)] = 0.0f;	//G
+			screenImage[i + screenWidth * (j + 3 * 2)] = 0.0f;	//B
+			//screenImage[i + screenWidth * (j + 3 * 3)] = (GLubyte)255;	//A
 		}
 	}
-	/*
-	for(int i = 0; i < screenHeight*screenWidth*4; i+=4)
+*/
+	for(int i = 0; i < screenHeight*screenWidth*3; i+=3)
+	{
+		screenImage[i+0] = 1.0f;
+		screenImage[i+1] = 0.0f;
+		screenImage[i+2] = 0.0f;
+	}
+
+	for(int i = 0; i < screenHeight*screenWidth*3; i+=3)
 	{
 		std::cout << "Colour:\t";
 		std::cout << screenImage[i+0] << " ";
 		std::cout << screenImage[i+1] << " ";
-		std::cout << screenImage[i+2] << " ";
-		std::cout << screenImage[i+3] << "\n";
+		std::cout << screenImage[i+2] << "\n";
+		//std::cout << screenImage[i+3] << "\n";
 	}
-*/
+
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	glGenTextures(1, &texID);
 	glBindTexture(GL_TEXTURE_2D, texID);
 	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, /*img.getFormat()*/GL_RGBA, GL_UNSIGNED_BYTE, &image);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, screenWidth, screenHeight, 0, /*img.getFormat()*/GL_RGBA, GL_UNSIGNED_BYTE, screenImage);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screenWidth, screenHeight, 0, /*img.getFormat()*/GL_RGB, GL_FLOAT, screenImage);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
