@@ -42,7 +42,6 @@ private:
 
 	GLFWwindow* window;
 	static GLubyte* screenImage;
-	static GLubyte checkImage[64][64][4];
 	static GLuint texID;
 public:
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
