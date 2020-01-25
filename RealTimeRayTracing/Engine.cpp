@@ -124,13 +124,16 @@ void Engine::createScreenImage()
 	//a + width * (b + depth * c)
 	//depth*(y*width+x)+z
 
-	for (int i = 0; i < screenHeight; i++)
+	for (int i = 0; i < screenWidth; i++)
 	{
-		for (int j = 0; j < screenWidth; j++)
+		for (int j = 0; j < screenHeight; j++)
 		{
-			screenImage[3*(j*screenWidth+i)+0] = 0.5f;	//R
-			screenImage[3*(j*screenWidth+i)+1] = 1.0f;	//G
-			screenImage[3*(j*screenWidth+i)+2] = 0.5f;	//B
+			float c = 0.0f;
+			if(((i/16)%2==0 && (j/16)%2 == 0) || ((i/16)%2==1 && (j/16)%2 == 1))
+				c = 1.0f;
+			screenImage[3*(j*screenWidth+i)+0] = c;	//R
+			screenImage[3*(j*screenWidth+i)+1] = 0;	//G
+			screenImage[3*(j*screenWidth+i)+2] = 0;	//B
 			//screenImage[i + screenWidth * (j + 3 * 3)] = (GLubyte)255;	//A
 		}
 	}
@@ -141,16 +144,17 @@ void Engine::createScreenImage()
 		screenImage[i+1] = 1.0f;
 		screenImage[i+2] = 0.0f;
 	}*/
-/*
+
 	for(int i = 0; i < screenHeight*screenWidth*3; i+=3)
 	{
-		std::cout << "Colour:\t";
-		std::cout << screenImage[i+0] << " ";
-		std::cout << screenImage[i+1] << " ";
-		std::cout << screenImage[i+2] << "\n";
+		//std::cout << "Colour:\t";
+		std::cout << screenImage[i+0] << "";
+		std::cout << screenImage[i+1] << "";
+		std::cout << screenImage[i+2] << " ";
+		if((i % screenWidth)==0) std::cout << "\n";
 		//std::cout << screenImage[i+3] << "\n";
 	}
-*/
+
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	glGenTextures(1, &texID);
@@ -158,11 +162,13 @@ void Engine::createScreenImage()
 	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, /*img.getFormat()*/GL_RGBA, GL_UNSIGNED_BYTE, &image);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screenWidth, screenHeight, 0, /*img.getFormat()*/GL_RGB, GL_FLOAT, screenImage);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16.0f);
+
+	glUniform1i(glGetUniformLocation(myShader.handle(),"tex"),0);
 }
 
 void Engine::processEvents()
