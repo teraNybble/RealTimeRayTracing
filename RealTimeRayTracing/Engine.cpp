@@ -122,25 +122,26 @@ void Engine::createScreenImage()
 	//screenImage = new GLubyte[64*64*4];
 	//arr[a][b][c];
 	//a + width * (b + depth * c)
-/*
+	//depth*(y*width+x)+z
+
 	for (int i = 0; i < screenHeight; i++)
 	{
 		for (int j = 0; j < screenWidth; j++)
 		{
-			screenImage[i + screenWidth * (j + 3 * 0)] = 1.0f;	//R
-			screenImage[i + screenWidth * (j + 3 * 1)] = 0.0f;	//G
-			screenImage[i + screenWidth * (j + 3 * 2)] = 0.0f;	//B
+			screenImage[3*(j*screenWidth+i)+0] = 0.5f;	//R
+			screenImage[3*(j*screenWidth+i)+1] = 1.0f;	//G
+			screenImage[3*(j*screenWidth+i)+2] = 0.5f;	//B
 			//screenImage[i + screenWidth * (j + 3 * 3)] = (GLubyte)255;	//A
 		}
 	}
-*/
+/*
 	for(int i = 0; i < screenHeight*screenWidth*3; i+=3)
 	{
 		screenImage[i+0] = 1.0f;
-		screenImage[i+1] = 0.0f;
+		screenImage[i+1] = 1.0f;
 		screenImage[i+2] = 0.0f;
-	}
-
+	}*/
+/*
 	for(int i = 0; i < screenHeight*screenWidth*3; i+=3)
 	{
 		std::cout << "Colour:\t";
@@ -149,7 +150,7 @@ void Engine::createScreenImage()
 		std::cout << screenImage[i+2] << "\n";
 		//std::cout << screenImage[i+3] << "\n";
 	}
-
+*/
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	glGenTextures(1, &texID);
