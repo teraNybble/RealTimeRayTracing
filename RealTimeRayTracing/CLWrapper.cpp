@@ -2,9 +2,15 @@
 #include <iostream>
 #include <fstream>
 
+#ifdef _WIN32
+#define to_kB(b) (b/1024.0)
+#define to_MB(b) (to_kB(b)/1024.0)
+#define to_GB(b) (to_MB(b)/1024.0)
+#else
 #define to_kB(b) ({b/1024.0;})
 #define to_MB(b) ({to_kB(b)/1024.0;})
 #define to_GB(b) ({to_MB(b)/1024.0;})
+#endif
 
 void CLWrapper::printDeviceInfo(const std::vector<cl::Device>& devices)
 {

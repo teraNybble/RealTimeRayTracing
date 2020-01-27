@@ -5,7 +5,7 @@
 #define to_MB(b) (to_kB(b)/1024.0)
 #define to_GB(b) (to_MB(b)/1024.0)
 
-#elif
+#else
 
 #define to_kB(b) ({b/1024.0;})
 #define to_MB(b) ({to_kB(b)/1024.0;})
