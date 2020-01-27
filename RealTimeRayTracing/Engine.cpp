@@ -7,6 +7,21 @@ std::map<int,bool> Engine::keyMap;
 float* Engine::screenImage;
 GLuint Engine::texID;
 
+/*
+ * THIS IS THE FUNCTION YOU WHERE PROBABLY LOOKING FOR
+ *
+ * https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateFromGLTexture.html
+ * 
+ * cl_mem clCreateFromGLTexture (
+ * cl_context context,
+ * cl_mem_flags flags,
+ * GLenum texture_target,
+ * GLint miplevel,
+ * GLuint texture,
+ * cl_int * errcode_ret)
+*/
+
+
 void Engine::display()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -49,6 +64,10 @@ void Engine::init()
 	createScreenImage();
 
 	myCube.constructGeometry(&myShader);
+
+	keyMap.insert(std::pair<int,bool>(GLFW_KEY_KP_1,false));
+	keyMap.insert(std::pair<int,bool>(GLFW_KEY_KP_2,false));
+	keyMap.insert(std::pair<int,bool>(GLFW_KEY_KP_3,false));
 
 	glEnable(GL_DEPTH_TEST);
 }
@@ -131,9 +150,9 @@ void Engine::createScreenImage()
 			float c = 0.0f;
 			if(((i/16)%2==0 && (j/16)%2 == 0) || ((i/16)%2==1 && (j/16)%2 == 1))
 				c = 1.0f;
-			screenImage[3*(j*screenWidth+i)+0] = c;	//R
-			screenImage[3*(j*screenWidth+i)+1] = 0;	//G
-			screenImage[3*(j*screenWidth+i)+2] = 0;	//B
+			screenImage[3*(j*screenWidth+i)+0] = 1;	//R
+			screenImage[3*(j*screenWidth+i)+1] = 1;	//G
+			screenImage[3*(j*screenWidth+i)+2] = 1;	//B
 			//screenImage[i + screenWidth * (j + 3 * 3)] = (GLubyte)255;	//A
 		}
 	}
@@ -174,6 +193,44 @@ void Engine::createScreenImage()
 void Engine::processEvents()
 {
 	glfwPollEvents();
+
+	if(keyMap.at(GLFW_KEY_KP_1))
+	{
+		std::cout << "make it red\n";
+		for (int i = 0; i < screenWidth; i++)
+		{
+			for (int j = 0; j < screenHeight; j++)
+			{
+				screenImage[3*(j*screenWidth+i)+0] = 1;	//R
+				screenImage[3*(j*screenWidth+i)+1] = 0;	//G
+				screenImage[3*(j*screenWidth+i)+2] = 0;	//B
+			}
+		}
+	}
+	if(keyMap.at(GLFW_KEY_KP_2))
+	{
+		for (int i = 0; i < screenWidth; i++)
+		{
+			for (int j = 0; j < screenHeight; j++)
+			{
+				screenImage[3*(j*screenWidth+i)+0] = 0;	//R
+				screenImage[3*(j*screenWidth+i)+1] = 1;	//G
+				screenImage[3*(j*screenWidth+i)+2] = 0;	//B
+			}
+		}
+	}
+	if(keyMap.at(GLFW_KEY_KP_3))
+	{
+		for (int i = 0; i < screenWidth; i++)
+		{
+			for (int j = 0; j < screenHeight; j++)
+			{
+				screenImage[3*(j*screenWidth+i)+0] = 0;	//R
+				screenImage[3*(j*screenWidth+i)+1] = 0;	//G
+				screenImage[3*(j*screenWidth+i)+2] = 1;	//B
+			}
+		}
+	}
 
 	if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{

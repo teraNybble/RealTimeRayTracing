@@ -1,59 +1,12 @@
-#include "Engine.h"
-
-#ifdef _WIN32
-#pragma warning(disable : 4996)
-#endif
-#include "clHelp.h"
+#include "CLWrapper.h"
 #include <iostream>
 #include <fstream>
-/**************************************************
- ****************** USEFUL LINKS ******************
- * https://www.youtube.com/watch?v=8D6yhpiQVVI
- * https://www.youtube.com/watch?v=RKyhHonQMbw
- *
- * https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateFromGLTexture.html
- **************************************************/
+
 #define to_kB(b) ({b/1024.0;})
 #define to_MB(b) ({to_kB(b)/1024.0;})
 #define to_GB(b) ({to_MB(b)/1024.0;})
 
-cl::Program createProgram(const std::string& file);
-void printDeviceInfo(const std::vector<cl::Device>& devices);
-
-//write openCL script that returns the x,y coordinates in const char* form
-//this will allow me to prove that I know that I can write an openCL script
-//that can work as if it was 2D as this will be useful for figuring out
-//what colour each pixel is on a screen.
-
-int main()
-{
-	cl::Program program = createProgram("CLfiles/2Dcoords.cl");
-	cl::Context context = program.getInfo<CL_PROGRAM_CONTEXT>();
-	cl::Device  device  = context.getInfo<CL_CONTEXT_DEVICES>().front();
-
-	char buf[7100];//16*9*4
-	cl::Buffer memBuf(context, CL_MEM_WRITE_ONLY | CL_MEM_HOST_READ_ONLY, sizeof(buf));
-	cl::Kernel kernel(program, "getXY");
-
-	kernel.setArg(0, memBuf);
-
-	cl::NDRange screenRange(16,9);
-
-	cl::CommandQueue queue(context, device);
-	//queue.enqueueTask(kernel);
-	queue.enqueueNDRangeKernel(kernel,0,screenRange);
-	queue.enqueueReadBuffer(memBuf, CL_TRUE, 0, sizeof(buf), buf);
-
-	//cl_float3 test;
-
-	std::cout << buf;
-
-	Engine engine;
-
-	return engine.mainLoop();
-}
-
-void printDeviceInfo(const std::vector<cl::Device>& devices)
+void CLWrapper::printDeviceInfo(const std::vector<cl::Device>& devices)
 {
 	std::cout << "num devices\t\t" << devices.size() << "\n\n";
 
@@ -76,7 +29,7 @@ void printDeviceInfo(const std::vector<cl::Device>& devices)
 }
 
 //code 'borrowed' from: https://www.youtube.com/watch?v=N0H0NCoOTUA
-cl::Program createProgram(const std::string& file)
+cl::Program CLWrapper::createProgram(const std::string& file)
 {
 	for(int i = 0; i < 40; i++)
 		std::cout << "-";
@@ -116,4 +69,18 @@ cl::Program createProgram(const std::string& file)
 	if(error) { std::cerr << "OpenCL error:\t" << getErrorString(error) << std::endl; exit(error); }
 
 	return program;
+}
+
+void CLWrapper::init(std::string path)
+{
+	cl::Program program = createProgram(path);
+	cl::Context context = program.getInfo<CL_PROGRAM_CONTEXT>();
+	cl::Device  device  = context.getInfo<CL_CONTEXT_DEVICES>().front();
+/*
+	char buf[7100];//16*9*4
+	cl::Buffer memBuf(context, CL_MEM_WRITE_ONLY | CL_MEM_HOST_READ_ONLY, sizeof(buf));
+	cl::Kernel kernel(program, "getXY");
+
+	kernel.setArg(0, memBuf);
+ */
 }
