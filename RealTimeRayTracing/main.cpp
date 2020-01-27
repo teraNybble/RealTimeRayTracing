@@ -1,8 +1,20 @@
-#include "Engine.h"
-
 #ifdef _WIN32
 #pragma warning(disable : 4996)
+
+#define to_kB(b) (b/1024.0)
+#define to_MB(b) (to_kB(b)/1024.0)
+#define to_GB(b) (to_MB(b)/1024.0)
+
+#elif
+
+#define to_kB(b) ({b/1024.0;})
+#define to_MB(b) ({to_kB(b)/1024.0;})
+#define to_GB(b) ({to_MB(b)/1024.0;})
+
 #endif
+
+#include "Engine.h"
+
 #include "clHelp.h"
 #include <iostream>
 #include <fstream>
@@ -13,9 +25,6 @@
  *
  * https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateFromGLTexture.html
  **************************************************/
-#define to_kB(b) ({b/1024.0;})
-#define to_MB(b) ({to_kB(b)/1024.0;})
-#define to_GB(b) ({to_MB(b)/1024.0;})
 
 cl::Program createProgram(const std::string& file);
 void printDeviceInfo(const std::vector<cl::Device>& devices);

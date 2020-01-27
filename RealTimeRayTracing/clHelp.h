@@ -1,5 +1,8 @@
 #ifndef CLHELP_H
 #define CLHELP_H
+#ifdef _WIN32
+#pragma warning(disable : 4996)
+#endif
 #include <CL/cl.hpp>
 
 //function borrowed from:
