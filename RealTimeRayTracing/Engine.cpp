@@ -147,33 +147,32 @@ void Engine::createScreenImage()
 	{
 		for (int j = 0; j < 256; j++)
 		{
-			float c = 0.0f;
-			if(((i/16)%2==0 && (j/16)%2 == 0) || ((i/16)%2==1 && (j/16)%2 == 1))
-				c = 1.0f;
+			float r = 0.0f;
+			float g = 0.0f;
+			float b = 0.0f;
+			//if(((i/16)%2==0 && (j/16)%2 == 0) || ((i/16)%2==1 && (j/16)%2 == 1))
+			//if(((i/16)%3==0 && (j/16)%3 == 0) || ((i/16)%3==1 && (j/16)%3 == 2) || ((i/16)%3==2 && (j/16)%3 == 1))
+			if(i<(256.0/2.0) && j<(256.0/2.0))
+				r = 1.0f;
+			if(i>(256.0/2.0) && j<(256.0/2.0))
+				g = 1.0f;
+			if(i<(256.0/2.0) && j>(256.0/2.0))
+				b = 1.0f;
 			/*screenImage[3*(j*screenWidth+i)+0] = 1;	//R
 			screenImage[3*(j*screenWidth+i)+1] = 1;	//G
 			screenImage[3*(j*screenWidth+i)+2] = 1;	//B*/
-			screenImage[3*(j*256+i)+0] = c;	//R
-			screenImage[3*(j*256+i)+1] = c;	//G
-			screenImage[3*(j*256+i)+2] = c;	//B
-			//screenImage[i + screenWidth * (j + 3 * 3)] = (GLubyte)255;	//A
+			screenImage[3*(j*256+i)+0] = r;	//R
+			screenImage[3*(j*256+i)+1] = g;	//G
+			screenImage[3*(j*256+i)+2] = b;	//B
 		}
 	}
-/*
-	for(int i = 0; i < screenHeight*screenWidth*3; i+=3)
-	{
-		screenImage[i+0] = 1.0f;
-		screenImage[i+1] = 1.0f;
-		screenImage[i+2] = 0.0f;
-	}*/
 
 	for(int i = 0; i < 256*256*3; i+=3)
 	{
-		//std::cout << "Colour:\t";
 		std::cout << screenImage[i+0] << "";
 		std::cout << screenImage[i+1] << "";
 		std::cout << screenImage[i+2] << " ";
-		if((i % screenWidth)==0) std::cout << "\n";
+		if((i % 256)==0) std::cout << "\n";
 		//std::cout << screenImage[i+3] << "\n";
 	}
 
@@ -261,18 +260,6 @@ void Engine::processEvents()
 	{
 		y-=0.5f;
 	}
-/*
-	if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-	{
-		camRot -= 0.01f;
-		if(camRot < 0) { camRot += 2*PI; }
-	}
-	if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-	{
-		camRot += 0.01f;
-		if(camRot > 2*PI) { camRot -= 2*PI; }
-	}
-*/
 
 }
 
