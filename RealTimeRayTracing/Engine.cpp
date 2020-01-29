@@ -137,22 +137,25 @@ void Engine::createScreenImage()
 	bool hasAlpha;
 
 	//allocate the space for the window texture
-	screenImage = new float[screenHeight*screenWidth*3];
-	//screenImage = new GLubyte[64*64*4];
+	//screenImage = new float[screenHeight*screenWidth*3];
+	screenImage = new float[256*265*3];
 	//arr[a][b][c];
 	//a + width * (b + depth * c)
 	//depth*(y*width+x)+z
 
-	for (int i = 0; i < screenWidth; i++)
+	for (int i = 0; i < 256; i++)
 	{
-		for (int j = 0; j < screenHeight; j++)
+		for (int j = 0; j < 256; j++)
 		{
 			float c = 0.0f;
 			if(((i/16)%2==0 && (j/16)%2 == 0) || ((i/16)%2==1 && (j/16)%2 == 1))
 				c = 1.0f;
-			screenImage[3*(j*screenWidth+i)+0] = 1;	//R
+			/*screenImage[3*(j*screenWidth+i)+0] = 1;	//R
 			screenImage[3*(j*screenWidth+i)+1] = 1;	//G
-			screenImage[3*(j*screenWidth+i)+2] = 1;	//B
+			screenImage[3*(j*screenWidth+i)+2] = 1;	//B*/
+			screenImage[3*(j*256+i)+0] = c;	//R
+			screenImage[3*(j*256+i)+1] = c;	//G
+			screenImage[3*(j*256+i)+2] = c;	//B
 			//screenImage[i + screenWidth * (j + 3 * 3)] = (GLubyte)255;	//A
 		}
 	}
@@ -164,7 +167,7 @@ void Engine::createScreenImage()
 		screenImage[i+2] = 0.0f;
 	}*/
 
-	for(int i = 0; i < screenHeight*screenWidth*3; i+=3)
+	for(int i = 0; i < 256*256*3; i+=3)
 	{
 		//std::cout << "Colour:\t";
 		std::cout << screenImage[i+0] << "";
@@ -180,7 +183,7 @@ void Engine::createScreenImage()
 	glBindTexture(GL_TEXTURE_2D, texID);
 	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, /*img.getFormat()*/GL_RGBA, GL_UNSIGNED_BYTE, &image);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screenWidth, screenHeight, 0, /*img.getFormat()*/GL_RGB, GL_FLOAT, screenImage);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, 256, 0, /*img.getFormat()*/GL_RGB, GL_FLOAT, screenImage);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);

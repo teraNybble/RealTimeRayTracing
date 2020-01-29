@@ -49,11 +49,16 @@ void Screen::constructGeometry(Shader* myShader)
 	verts[ 6] = -1;	verts[ 7] = +1;	verts[ 8] = -1;
 	verts[ 9] = -1;	verts[10] = -1;	verts[11] = -1;
 
-	//-----R-------		-------G-------		-------B-------
-	cols[ 0] = 1.0;		cols[ 1] = 1.0;		cols[ 2] = 1.0;
-	cols[ 3] = 1.0;		cols[ 4] = 1.0;		cols[ 5] = 1.0;
-	cols[ 6] = 1.0;		cols[ 7] = 1.0;		cols[ 8] = 1.0;
-	cols[ 9] = 1.0;		cols[10] = 1.0;		cols[11] = 1.0;
+	//-----R------- 		-------G------- 		-------B-------
+	cols[ 0] = 1.0f;		cols[ 1] = 1.0f;		cols[ 2] = 1.0f;
+	cols[ 3] = 1.0f;		cols[ 4] = 1.0f;		cols[ 5] = 1.0f;
+	cols[ 6] = 1.0f;		cols[ 7] = 1.0f;		cols[ 8] = 1.0f;
+	cols[ 9] = 1.0f;		cols[10] = 1.0f;		cols[11] = 1.0f;
+
+	texCoords[0] = 1.0f; texCoords[1] = 0.0f;
+	texCoords[2] = 1.0f; texCoords[3] = 1.0f;
+	texCoords[4] = 0.0f; texCoords[5] = 1.0f;
+	texCoords[6] = 0.0f; texCoords[7] = 0.0f;
 
 	tris[ 0]=0; tris[ 1]=1; tris[ 2]=2;
 	tris[ 3]=0; tris[ 4]=2; tris[ 5]=3;
@@ -64,7 +69,7 @@ void Screen::constructGeometry(Shader* myShader)
 	// First VAO setup
 	glBindVertexArray(m_vaoID);
 
-	glGenBuffers(2, m_vboID);
+	glGenBuffers(3, m_vboID);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_vboID[0]);
 	//initialises data storage of vertex buffer object
@@ -79,6 +84,12 @@ void Screen::constructGeometry(Shader* myShader)
 	GLint colorLocation= glGetAttribLocation(myShader->handle(), "in_Color");
 	glVertexAttribPointer(colorLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(colorLocation);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboID[2]);
+	glBufferData(GL_ARRAY_BUFFER, numOfVerts*2*sizeof(GLfloat), texCoords, GL_STATIC_DRAW);
+	GLint texCoordLocation= glGetAttribLocation(myShader->handle(), "in_TexCoord");
+	glVertexAttribPointer(texCoordLocation, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(texCoordLocation);
 
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);

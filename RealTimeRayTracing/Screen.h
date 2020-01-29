@@ -16,7 +16,7 @@ class Screen
 {
 private:
 	unsigned int m_vaoID;		    // vertex array object
-	unsigned int m_vboID[2];		// two VBOs - used for colours and vertex data
+	unsigned int m_vboID[3];		// three VBOs - used for colours and vertex data and texCoords
 	GLuint ibo;                     //identifier for the triangle indices
 
 	static int numOfVerts;
@@ -24,6 +24,7 @@ private:
 
 	float verts[NumberOfVertexCoords];
 	float cols[NumberOfVertexCoords];
+	float texCoords[8];
 	unsigned int tris[NumberOfTriangleIndices];
 
 	//float matrix[16];
