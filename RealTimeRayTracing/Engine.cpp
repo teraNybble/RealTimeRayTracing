@@ -1,7 +1,7 @@
 #include "Engine.h"
 
-int Engine::screenWidth = 480;
-int Engine::screenHeight = 480;
+int Engine::screenWidth = 1280;
+int Engine::screenHeight = 720;
 glm::mat4 Engine::ProjectionMatrix;
 std::map<int,bool> Engine::keyMap;
 float* Engine::screenImage;
@@ -137,37 +137,37 @@ void Engine::createScreenImage()
 	bool hasAlpha;
 
 	//allocate the space for the window texture
-	//screenImage = new float[screenHeight*screenWidth*3];
-	screenImage = new float[256*265*3];
+	screenImage = new float[screenHeight*screenWidth*3];
+	//screenImage = new float[256*265*3];
 	//arr[a][b][c];
 	//a + width * (b + depth * c)
 	//depth*(y*width+x)+z
 
-	for (int i = 0; i < 256; i++)
+	for (int i = 0; i < screenHeight; i++)
 	{
-		for (int j = 0; j < 256; j++)
+		for (int j = 0; j < screenWidth; j++)
 		{
 			float r = 0.0f;
 			float g = 0.0f;
 			float b = 0.0f;
 			//if(((i/16)%2==0 && (j/16)%2 == 0) || ((i/16)%2==1 && (j/16)%2 == 1))
 			//if(((i/16)%3==0 && (j/16)%3 == 0) || ((i/16)%3==1 && (j/16)%3 == 2) || ((i/16)%3==2 && (j/16)%3 == 1))
-			if(i<(256.0/2.0) && j<(256.0/2.0))
+			if(i<((2*screenHeight)/3.0) && j<((2*screenWidth)/3.0))
 				r = 1.0f;
-			if(i>(256.0/2.0) && j<(256.0/2.0))
+			if(i>((1*screenHeight)/3.0) && j<((2*screenWidth)/3.0))
 				g = 1.0f;
-			if(i<(256.0/2.0) && j>(256.0/2.0))
+			if(i<((2*screenHeight)/3.0) && j>((1*screenWidth)/3.0))
 				b = 1.0f;
 			/*screenImage[3*(j*screenWidth+i)+0] = 1;	//R
 			screenImage[3*(j*screenWidth+i)+1] = 1;	//G
 			screenImage[3*(j*screenWidth+i)+2] = 1;	//B*/
-			screenImage[3*(j*256+i)+0] = r;	//R
-			screenImage[3*(j*256+i)+1] = g;	//G
-			screenImage[3*(j*256+i)+2] = b;	//B
+			screenImage[3*(i*screenWidth+j)+0] = r;	//R
+			screenImage[3*(i*screenWidth+j)+1] = g;	//G
+			screenImage[3*(i*screenWidth+j)+2] = b;	//B
 		}
 	}
 
-	for(int i = 0; i < 256*256*3; i+=3)
+	for(int i = 0; i < screenHeight*screenWidth*3; i+=3)
 	{
 		std::cout << screenImage[i+0] << "";
 		std::cout << screenImage[i+1] << "";
@@ -182,7 +182,7 @@ void Engine::createScreenImage()
 	glBindTexture(GL_TEXTURE_2D, texID);
 	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, /*img.getFormat()*/GL_RGBA, GL_UNSIGNED_BYTE, &image);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, 256, 0, /*img.getFormat()*/GL_RGB, GL_FLOAT, screenImage);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screenHeight, screenWidth, 0, /*img.getFormat()*/GL_RGB, GL_FLOAT, screenImage);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
