@@ -1,6 +1,6 @@
 #include "Engine.h"
 
-int Engine::screenWidth = 1280;
+int Engine::screenWidth = 720;
 int Engine::screenHeight = 720;
 glm::mat4 Engine::ProjectionMatrix;
 std::map<int,bool> Engine::keyMap;
@@ -180,7 +180,7 @@ void Engine::createScreenImage()
 
 	glGenTextures(1, &texID);
 	glBindTexture(GL_TEXTURE_2D, texID);
-	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+	//glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, /*img.getFormat()*/GL_RGBA, GL_UNSIGNED_BYTE, &image);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screenHeight, screenWidth, 0, /*img.getFormat()*/GL_RGB, GL_FLOAT, screenImage);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
