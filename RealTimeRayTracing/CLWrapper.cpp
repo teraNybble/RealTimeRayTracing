@@ -79,9 +79,9 @@ cl::Program CLWrapper::createProgram(const std::string& file)
 
 void CLWrapper::init(std::string path)
 {
-	cl::Program program = createProgram(path);
-	cl::Context context = program.getInfo<CL_PROGRAM_CONTEXT>();
-	cl::Device  device  = context.getInfo<CL_CONTEXT_DEVICES>().front();
+	program = createProgram(path);
+	context = program.getInfo<CL_PROGRAM_CONTEXT>();
+	device  = context.getInfo<CL_CONTEXT_DEVICES>().front();
 /*
 	char buf[7100];//16*9*4
 	cl::Buffer memBuf(context, CL_MEM_WRITE_ONLY | CL_MEM_HOST_READ_ONLY, sizeof(buf));

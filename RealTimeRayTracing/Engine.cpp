@@ -166,7 +166,7 @@ void Engine::createScreenImage()
 			screenImage[3*(i*screenWidth+j)+2] = b;	//B
 		}
 	}
-
+/*
 	for(int i = 0; i < screenHeight*screenWidth*3; i+=3)
 	{
 		std::cout << screenImage[i+0] << "";
@@ -175,7 +175,7 @@ void Engine::createScreenImage()
 		if((i % 256)==0) std::cout << "\n";
 		//std::cout << screenImage[i+3] << "\n";
 	}
-
+*/
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	glGenTextures(1, &texID);

@@ -15,7 +15,7 @@
 
 #include "Engine.h"
 
-#include "clHelp.h"
+#include "CLWrapper.h"
 #include <iostream>
 #include <fstream>
 /**************************************************
@@ -36,6 +36,7 @@ void printDeviceInfo(const std::vector<cl::Device>& devices);
 
 int main()
 {
+	/*
 	cl::Program program = createProgram("CLfiles/2Dcoords.cl");
 	cl::Context context = program.getInfo<CL_PROGRAM_CONTEXT>();
 	cl::Device  device  = context.getInfo<CL_CONTEXT_DEVICES>().front();
@@ -45,13 +46,21 @@ int main()
 	cl::Kernel kernel(program, "getXY");
 
 	kernel.setArg(0, memBuf);
+*/
+	char buf[7100];//16*9*4
+	CLWrapper clthing;
+	clthing.init("CLfiles/2Dcoords.cl");
+	clthing.createBuffer(CL_MEM_WRITE_ONLY | CL_MEM_HOST_READ_ONLY, sizeof(buf));
+	clthing.createKernel("getXY");
+
+	clthing.setKernelArgs(0, clthing.getBuffer());
 
 	cl::NDRange screenRange(16,9);
 
-	cl::CommandQueue queue(context, device);
+	cl::CommandQueue queue(clthing.getContext(),clthing.getDevice());
 	//queue.enqueueTask(kernel);
-	queue.enqueueNDRangeKernel(kernel,0,screenRange);
-	queue.enqueueReadBuffer(memBuf, CL_TRUE, 0, sizeof(buf), buf);
+	queue.enqueueNDRangeKernel(clthing.getKernel(),0,screenRange);
+	queue.enqueueReadBuffer(clthing.getBuffer(), CL_TRUE, 0, sizeof(buf), buf);
 
 	//cl_float3 test;
 
