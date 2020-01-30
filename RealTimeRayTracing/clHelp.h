@@ -4,6 +4,7 @@
 #pragma warning(disable : 4996)
 #endif
 #include <CL/cl.hpp>
+#include <CL/cl2.hpp> //allows openCL to talk to openGL>
 
 //function borrowed from:
 //https://stackoverflow.com/questions/24326432/convenient-way-to-show-opencl-error-codes

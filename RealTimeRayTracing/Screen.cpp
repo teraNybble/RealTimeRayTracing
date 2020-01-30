@@ -39,9 +39,24 @@ void Screen::render(GLuint texID)
 	glBindVertexArray(0); //unbind the vertex array object
 }
 
-void Screen::constructGeometry(Shader* myShader)
+void Screen::constructGeometry(Shader* myShader, unsigned int width, unsigned int height)
 {
 	shader = myShader;
+
+	float a,b;
+
+	if(width > height)
+	{
+		a = width;
+		b = height;
+	}
+	else
+	{
+		a = height;
+		b = width;
+	}
+
+	float ratio = b/a;
 
 	//------X------	------Y--------	------Z-------
 	verts[ 0] = +1;	verts[ 1] = -1;	verts[ 2] = -1;
@@ -55,10 +70,20 @@ void Screen::constructGeometry(Shader* myShader)
 	cols[ 6] = 1.0f;		cols[ 7] = 1.0f;		cols[ 8] = 1.0f;
 	cols[ 9] = 1.0f;		cols[10] = 1.0f;		cols[11] = 1.0f;
 
-	texCoords[0] = 1.0f; texCoords[1] = 1.0f;
-	texCoords[2] = 1.0f; texCoords[3] = 0.0f;
-	texCoords[4] = 0.0f; texCoords[5] = 0.0f;
-	texCoords[6] = 0.0f; texCoords[7] = 1.0f;
+	if(width > height)
+	{
+		texCoords[0] = 1.0f; texCoords[1] = ratio;
+		texCoords[2] = 1.0f; texCoords[3] = 0.0f;
+		texCoords[4] = 0.0f; texCoords[5] = 0.0f;
+		texCoords[6] = 0.0f; texCoords[7] = ratio;
+	}
+	else
+	{
+		texCoords[0] = ratio; texCoords[1] = 1.0f;
+		texCoords[2] = ratio; texCoords[3] = 0.0f;
+		texCoords[4] = 0.0f; texCoords[5] = 0.0f;
+		texCoords[6] = 0.0f; texCoords[7] = 1.0f;
+	}
 
 	tris[ 0]=0; tris[ 1]=1; tris[ 2]=2;
 	tris[ 3]=0; tris[ 4]=2; tris[ 5]=3;

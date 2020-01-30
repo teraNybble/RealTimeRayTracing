@@ -1,11 +1,13 @@
 #include "Engine.h"
 
-int Engine::screenWidth = 720;
+int Engine::screenWidth = 1280;
 int Engine::screenHeight = 720;
 glm::mat4 Engine::ProjectionMatrix;
 std::map<int,bool> Engine::keyMap;
 float* Engine::screenImage;
 GLuint Engine::texID;
+cl_mem Engine::textureLoc;
+CLWrapper Engine::raytracer;
 
 /*
  * THIS IS THE FUNCTION YOU WHERE PROBABLY LOOKING FOR
@@ -63,13 +65,16 @@ void Engine::init()
 
 	createScreenImage();
 
-	myCube.constructGeometry(&myShader);
+	myCube.constructGeometry(&myShader,screenWidth,screenHeight);
 
 	keyMap.insert(std::pair<int,bool>(GLFW_KEY_KP_1,false));
 	keyMap.insert(std::pair<int,bool>(GLFW_KEY_KP_2,false));
 	keyMap.insert(std::pair<int,bool>(GLFW_KEY_KP_3,false));
 
 	glEnable(GL_DEPTH_TEST);
+
+	//set up the openCL code for the raytracer
+	//raytracer.init("CLfiles/makeItRed.cl");
 }
 
 void Engine::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -137,7 +142,8 @@ void Engine::createScreenImage()
 	bool hasAlpha;
 
 	//allocate the space for the window texture
-	screenImage = new float[screenHeight*screenWidth*3];
+	int screenDim = ((screenWidth>screenHeight) ? screenWidth : screenHeight);
+	screenImage = new float[screenDim*screenDim*3];
 	//screenImage = new float[256*265*3];
 	//arr[a][b][c];
 	//a + width * (b + depth * c)
@@ -154,13 +160,10 @@ void Engine::createScreenImage()
 			//if(((i/16)%3==0 && (j/16)%3 == 0) || ((i/16)%3==1 && (j/16)%3 == 2) || ((i/16)%3==2 && (j/16)%3 == 1))
 			if(i<((2*screenHeight)/3.0) && j<((2*screenWidth)/3.0))
 				r = 1.0f;
-			if(i>((1*screenHeight)/3.0) && j<((2*screenWidth)/3.0))
+			if(i>((1*screenHeight)/3.0) && j>((1*screenWidth)/6.0) && j<((5*screenWidth)/6.0))
 				g = 1.0f;
 			if(i<((2*screenHeight)/3.0) && j>((1*screenWidth)/3.0))
 				b = 1.0f;
-			/*screenImage[3*(j*screenWidth+i)+0] = 1;	//R
-			screenImage[3*(j*screenWidth+i)+1] = 1;	//G
-			screenImage[3*(j*screenWidth+i)+2] = 1;	//B*/
 			screenImage[3*(i*screenWidth+j)+0] = r;	//R
 			screenImage[3*(i*screenWidth+j)+1] = g;	//G
 			screenImage[3*(i*screenWidth+j)+2] = b;	//B
@@ -182,7 +185,7 @@ void Engine::createScreenImage()
 	glBindTexture(GL_TEXTURE_2D, texID);
 	//glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, /*img.getFormat()*/GL_RGBA, GL_UNSIGNED_BYTE, &image);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screenHeight, screenWidth, 0, /*img.getFormat()*/GL_RGB, GL_FLOAT, screenImage);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screenDim, screenDim, 0, /*img.getFormat()*/GL_RGB, GL_FLOAT, screenImage);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -190,6 +193,26 @@ void Engine::createScreenImage()
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16.0f);
 
 	glUniform1i(glGetUniformLocation(myShader.handle(),"tex"),0);
+
+	cl_int error = CL_SUCCESS;
+
+	cl::ImageGL(
+			raytracer.getContext(),
+			CL_MEM_WRITE_ONLY,
+			GL_TEXTURE_2D,
+			0,
+			texID,
+			&error);
+/*
+ * For OpenGL interoperability with OpenCL, there currently is a requirement on when the
+ * OpenCL context is created and when texture/buffer shared allocations can be made. To use
+ * shared resources, the OpenGL application must create an OpenGL context and then an
+ * OpenCL context. All resources (GL buffers and textures) created after creation of the OpenCL
+ * context can be shared between OpenGL and OpenCL. If resources are allocated before the
+ * OpenCL context creation, they cannot be shared between OpenGL and OpenCL.
+ */
+	if(error != CL_SUCCESS)
+		std::cerr << "error creating cl::ImageGL:\t" << getErrorString(error) << std::endl;
 }
 
 void Engine::processEvents()

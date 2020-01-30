@@ -24,7 +24,8 @@
 
 #include "MatrixRoutines.h"
 #include "Screen.h"
-
+//#include "CL/cl_gl.h" //lets openCL and openGL talk
+#include "CLWrapper.h"
 
 class Engine
 {
@@ -43,6 +44,8 @@ private:
 	GLFWwindow* window;
 	static float* screenImage;
 	static GLuint texID;
+	static cl_mem textureLoc;
+	static CLWrapper raytracer;
 public:
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	void display();
