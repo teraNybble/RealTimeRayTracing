@@ -202,7 +202,7 @@ void Engine::createScreenImage()
 
 
 
-
+/*
 
 	for(int i = 0; i < 40; i++)
 		std::cout << "-";
@@ -224,7 +224,7 @@ void Engine::createScreenImage()
 	if(devices.empty()) { std::cerr << "devices is empty" << std::endl;	exit(2); }
 
 	//printDeviceInfo(devices);
-	std::cout << "device info goes here";
+	std::cout << "device info goes here\n";
 
 	for(int i = 0; i < 40; i++)
 		std::cout << "-";
@@ -234,7 +234,7 @@ void Engine::createScreenImage()
 	std::string src(std::istreambuf_iterator<char>(clFile), (std::istreambuf_iterator<char>()));
 
 	cl::Program::Sources sources(1,std::make_pair(src.c_str(), src.length() + 1));
-
+*/
 	cl::Platform lPlatform = getPlatform();
 #ifdef __linux__
 	cl_context_properties cps[] = {
@@ -252,14 +252,16 @@ void Engine::createScreenImage()
             0
         };
 #endif
-
+/*
 	cl::Context context(device, cps);
 	cl::Program program(context,sources);
-
+*/
+	raytracer.init("CLfiles/makeItRed.cl", cps);
+/*
 	error = program.build("-cl-std=CL1.2");
 
 	if(error) { std::cerr << "OpenCL error:\t" << getErrorString(error) << std::endl; exit(error); }
-
+*/
 
 
 
@@ -269,12 +271,12 @@ void Engine::createScreenImage()
 
 	error = CL_SUCCESS;
 	cl::ImageGL(
-			context,
-			CL_MEM_WRITE_ONLY,
-			GL_TEXTURE_2D,
-			0,
-			texID,
-			&error);
+		raytracer.getContext(),
+		CL_MEM_WRITE_ONLY,
+		GL_TEXTURE_2D,
+		0,
+		texID,
+		&error);
 /*
  * For OpenGL interoperability with OpenCL, there currently is a requirement on when the
  * OpenCL context is created and when texture/buffer shared allocations can be made. To use
