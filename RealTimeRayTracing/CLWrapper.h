@@ -13,11 +13,11 @@ private:
 	cl::Buffer  memBuff;
 	cl::Kernel  kernel;
 
-	cl::Program createProgram(const std::string& file);
+	cl::Program createProgram(const std::string& file, cl_context_properties* properties = NULL);
 	void printDeviceInfo(const std::vector<cl::Device>& devices);
 public:
 
-	void init(std::string path);
+	void init(std::string path, cl_context_properties* properties = NULL);
 
 	inline void createBuffer(cl_mem_flags flags, ::size_t size,void* host_ptr = NULL, cl_int* err = NULL)	{
 		memBuff = cl::Buffer(context,flags,size,host_ptr,err);
@@ -32,11 +32,11 @@ public:
 		kernel.setArg(index,value);
 	}
 
-	inline cl::Program getProgram() const { return program; }
-	inline cl::Context getContext() const { return context; }
-	inline cl::Device  getDevice()  const { return device;  }
-	inline cl::Buffer  getBuffer()  const { return memBuff; }
-	inline cl::Kernel  getKernel()  const { return kernel;  }
+	inline const cl::Program& getProgram() const { return program; }
+	inline const cl::Context& getContext() const { return context; }
+	inline const cl::Device&  getDevice()  const { return device;  }
+	inline const cl::Buffer&  getBuffer()  const { return memBuff; }
+	inline const cl::Kernel&  getKernel()  const { return kernel;  }
 };
 
 

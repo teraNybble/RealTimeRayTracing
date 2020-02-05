@@ -1,5 +1,5 @@
-#ifndef SCREEN_H
-#define SCREEN_H
+#ifndef GLSCREEN_H
+#define GLSCREEN_H
 
 //#include "MatrixRoutines.h"
 #include "shaders/Shader.h"
@@ -12,7 +12,7 @@ const int NumberOfVertexCoords = 12;
 const int NumberOfTriangleIndices = 6;
 #endif
 
-class Screen
+class GLScreen
 {
 private:
 	unsigned int m_vaoID;		    // vertex array object
@@ -34,7 +34,7 @@ private:
 	//give the cuboid its own matrix
 	//give it a pos
 public:
-	Screen();
+	GLScreen();
 
 	inline void setShader(Shader* shader) { this->shader = shader; }
 
@@ -46,4 +46,4 @@ public:
 };
 
 
-#endif //SCREEN_H
+#endif //GLSCREEN_H

@@ -3,6 +3,15 @@
 #include <fstream>
 
 #ifdef _WIN32
+#include "gl/glew.h"
+#include "gl/wglew.h"
+#pragma comment(lib, "glew32.lib")
+#else
+#include "gl/glew.h"
+#include "gl/glxew.h"
+#endif // _WIN32
+
+#ifdef _WIN32
 #define to_kB(b) (b/1024.0)
 #define to_MB(b) (to_kB(b)/1024.0)
 #define to_GB(b) (to_MB(b)/1024.0)
@@ -35,7 +44,7 @@ void CLWrapper::printDeviceInfo(const std::vector<cl::Device>& devices)
 }
 
 //code 'borrowed' from: https://www.youtube.com/watch?v=N0H0NCoOTUA
-cl::Program CLWrapper::createProgram(const std::string& file)
+cl::Program CLWrapper::createProgram(const std::string& file, cl_context_properties* properties)
 {
 	for(int i = 0; i < 40; i++)
 		std::cout << "-";
@@ -66,8 +75,37 @@ cl::Program CLWrapper::createProgram(const std::string& file)
 	std::string src(std::istreambuf_iterator<char>(clFile), (std::istreambuf_iterator<char>()));
 
 	cl::Program::Sources sources(1,std::make_pair(src.c_str(), src.length() + 1));
+/*
+	std::cout << "cl context" << std::endl;
+	// Create the properties for this context.
+	// code borrwed from somewhere
+	cl_context_properties lContextProperties[] = {
+			// We need to add information about the OpenGL context with
+			// which we want to exchange information with the OpenCL context.
+#if defined (WIN32)
+	// We should first check for cl_khr_gl_sharing extension.
+            CL_GL_CONTEXT_KHR , (cl_context_properties) wglGetCurrentContext() ,
+            CL_WGL_HDC_KHR , (cl_context_properties) wglGetCurrentDC() ,
+#elif defined (__linux__)
+			// We should first check for cl_khr_gl_sharing extension.
+			CL_GL_CONTEXT_KHR , (cl_context_properties) glXGetCurrentContext() ,
+			CL_GLX_DISPLAY_KHR , (cl_context_properties) glXGetCurrentDisplay() ,
+#elif defined (__APPLE__)
+	// We should first check for cl_APPLE_gl_sharing extension.
+            #if 0
+            // This doesn't work.
+            CL_GL_CONTEXT_KHR , (cl_context_properties) CGLGetCurrentContext() ,
+            CL_CGL_SHAREGROUP_KHR , (cl_context_properties) CGLGetShareGroup( CGLGetCurrentContext() ) ,
+            #else
+            CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE , (cl_context_properties) CGLGetShareGroup( CGLGetCurrentContext() ) ,
+            #endif
+#endif
+			CL_CONTEXT_PLATFORM , (cl_context_properties) cl::Platform::get(&platform),
+			0 , 0 ,
+	};
 
-	cl::Context context(device);
+std::cout << "done that now" << std::endl;*/
+	cl::Context context(device/*, lContextProperties*/);
 	cl::Program program(context,sources);
 
 	auto error = program.build("-cl-std=CL1.2");
@@ -77,9 +115,9 @@ cl::Program CLWrapper::createProgram(const std::string& file)
 	return program;
 }
 
-void CLWrapper::init(std::string path)
+void CLWrapper::init(std::string path, cl_context_properties* properties)
 {
-	program = createProgram(path);
+	program = createProgram(path, properties);
 	context = program.getInfo<CL_PROGRAM_CONTEXT>();
 	device  = context.getInfo<CL_CONTEXT_DEVICES>().front();
 /*

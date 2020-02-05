@@ -2,6 +2,7 @@
 #define ENGINE_H
 
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 #include <math.h>
 #include <map>
@@ -12,6 +13,7 @@
 #pragma comment(lib, "glew32.lib")
 #else
 #include "gl/glew.h"
+#include "gl/glxew.h"
 #endif // _WIN32
 
 #include "shaders/Shader.h"
@@ -23,9 +25,11 @@
 #include <GLFW/glfw3.h>
 
 #include "MatrixRoutines.h"
-#include "Screen.h"
+#include "GLScreen.h"
 //#include "CL/cl_gl.h" //lets openCL and openGL talk
 #include "CLWrapper.h"
+
+#include "OpenCLUtil.h"
 
 class Engine
 {
@@ -33,7 +37,7 @@ private:
 	float x = 0, y = 0, z = 0;
 
 	Shader myShader;
-	Screen myCube;
+	GLScreen myCube;
 
 	static int screenWidth, screenHeight;
 	static std::map<int,bool> keyMap;

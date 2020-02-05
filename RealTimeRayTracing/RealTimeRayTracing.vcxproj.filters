@@ -30,7 +30,7 @@
     <ClCompile Include="Pos3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Screen.cpp">
+    <ClCompile Include="GLScreen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="shaders\Shader.cpp">
@@ -56,7 +56,7 @@
     <ClInclude Include="Pos3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Screen.h">
+    <ClInclude Include="GLScreen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="shaders\Shader.h">

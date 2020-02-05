@@ -141,7 +141,7 @@
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Pos3.cpp" />
-    <ClCompile Include="Screen.cpp" />
+    <ClCompile Include="GLScreen.cpp" />
     <ClCompile Include="shaders\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -151,7 +151,7 @@
     <ClInclude Include="Engine.h" />
     <ClInclude Include="MatrixRoutines.h" />
     <ClInclude Include="Pos3.h" />
-    <ClInclude Include="Screen.h" />
+    <ClInclude Include="GLScreen.h" />
     <ClInclude Include="shaders\Shader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

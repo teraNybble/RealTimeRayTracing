@@ -1,16 +1,16 @@
-#include "Screen.h"
+#include "GLScreen.h"
 
 #include <iostream>
 
-int Screen::numOfTris = 12;
-int Screen::numOfVerts = 8;
+int GLScreen::numOfTris = 12;
+int GLScreen::numOfVerts = 8;
 
-Screen::Screen()
+GLScreen::GLScreen()
 {
 	resetMatrix();
 }
 
-void Screen::render(GLuint texID)
+void GLScreen::render(GLuint texID)
 {
 	if(shader == NULL)
 	{
@@ -39,7 +39,7 @@ void Screen::render(GLuint texID)
 	glBindVertexArray(0); //unbind the vertex array object
 }
 
-void Screen::constructGeometry(Shader* myShader, unsigned int width, unsigned int height)
+void GLScreen::constructGeometry(Shader* myShader, unsigned int width, unsigned int height)
 {
 	shader = myShader;
 

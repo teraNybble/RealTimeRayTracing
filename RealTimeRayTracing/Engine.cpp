@@ -63,7 +63,7 @@ void Engine::init()
 		std::cerr << "failed to load shader" << std::endl;
 	}
 
-	createScreenImage();
+
 
 	myCube.constructGeometry(&myShader,screenWidth,screenHeight);
 
@@ -75,6 +75,9 @@ void Engine::init()
 
 	//set up the openCL code for the raytracer
 	//raytracer.init("CLfiles/makeItRed.cl");
+
+
+	createScreenImage();
 }
 
 void Engine::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -196,8 +199,77 @@ void Engine::createScreenImage()
 
 	cl_int error = CL_SUCCESS;
 
+
+
+
+
+
+	for(int i = 0; i < 40; i++)
+		std::cout << "-";
+	std::cout << "\n";
+
+	std::vector<cl::Platform> platforms;
+	cl::Platform::get(&platforms);
+
+	//if the platforms are empty there is no point to running the code
+	if(platforms.empty()) { std::cerr << "platforms is empty" << std::endl;	exit(1); }
+	std::cout << "num platforms\t" << platforms.size() << "\n";
+
+	auto platform = platforms.front();
+	std::vector<cl::Device> devices;
+	platform.getDevices(CL_DEVICE_TYPE_GPU, &devices);
+	auto device = devices.front();
+
+	//if there are no devices then we can't use OpenCL
+	if(devices.empty()) { std::cerr << "devices is empty" << std::endl;	exit(2); }
+
+	//printDeviceInfo(devices);
+	std::cout << "device info goes here";
+
+	for(int i = 0; i < 40; i++)
+		std::cout << "-";
+	std::cout << "\n";
+
+	std::ifstream clFile("CLfiles/makeItRed.cl");
+	std::string src(std::istreambuf_iterator<char>(clFile), (std::istreambuf_iterator<char>()));
+
+	cl::Program::Sources sources(1,std::make_pair(src.c_str(), src.length() + 1));
+
+	cl::Platform lPlatform = getPlatform();
+#ifdef __linux__
+	cl_context_properties cps[] = {
+            CL_GL_CONTEXT_KHR, (cl_context_properties)glXGetCurrentContext(),
+            CL_GLX_DISPLAY_KHR, (cl_context_properties)glXGetCurrentDisplay(),
+            CL_CONTEXT_PLATFORM, (cl_context_properties)lPlatform(),
+            0
+        };
+#endif
+#ifdef WIN32
+	cl_context_properties cps[] = {
+            CL_GL_CONTEXT_KHR, (cl_context_properties)glfwGetWGLContext(window),
+            CL_WGL_HDC_KHR, (cl_context_properties)GetDC(glfwGetWin32Window(window)),
+            CL_CONTEXT_PLATFORM, (cl_context_properties)lPlatform(),
+            0
+        };
+#endif
+
+	cl::Context context(device, cps);
+	cl::Program program(context,sources);
+
+	error = program.build("-cl-std=CL1.2");
+
+	if(error) { std::cerr << "OpenCL error:\t" << getErrorString(error) << std::endl; exit(error); }
+
+
+
+
+
+
+
+
+	error = CL_SUCCESS;
 	cl::ImageGL(
-			raytracer.getContext(),
+			context,
 			CL_MEM_WRITE_ONLY,
 			GL_TEXTURE_2D,
 			0,
