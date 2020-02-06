@@ -35,9 +35,9 @@ void CLWrapper::printDeviceInfo(const std::vector<cl::Device>& devices)
 		auto lmem = device->getInfo<CL_DEVICE_LOCAL_MEM_SIZE>();			//in bytes
 		auto cmem = device->getInfo<CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE>();	//in bytes
 
-		std::cout << "Device: \t\t\t" << i << "\n";
-		std::cout << "Vendor: \t\t\t" << vendor << "\n";
-		std::cout << "Version:\t\t\t" << version << "\n";
+		std::cout << "Device:         \t" << i << "\n";
+		std::cout << "Vendor:         \t" << vendor << "\n";
+		std::cout << "Version:        \t" << version << "\n";
 		std::cout << "Global Memory:  \t" << to_GB(gmem) << " GB\n";
 		std::cout << "Local Memory:   \t" << to_kB(lmem) << " kB\n";
 		std::cout << "Constant Memory:\t" << to_kB(cmem) << " kB\n\n";
