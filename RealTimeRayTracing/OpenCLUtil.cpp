@@ -21,23 +21,29 @@ Platform getPlatform(std::string pName, cl_int &error)
 		std::vector<Platform> platforms;
 		Platform::get(&platforms);
 		int found = -1;
-		for(PlatformIter it=platforms.begin(); it<platforms.end(); ++it) {
+		for (PlatformIter it = platforms.begin(); it < platforms.end(); ++it) {
 			std::string temp = it->getInfo<CL_PLATFORM_NAME>();
-			if (temp.find(pName)!=std::string::npos) {
+			if (temp.find(pName) != std::string::npos) {
 				found = it - platforms.begin();
-				std::cout<<"Found platform: "<<temp<<std::endl;
+				std::cout << "Found platform: " << temp << std::endl;
 				break;
 			}
 		}
-		if (found==-1) {
+		if (found == -1) {
 			// Going towards + numbers to avoid conflict with OpenCl error codes
 			error = +1; // requested platform not found
-		} else {
+		}
+		else {
 			ret_val = platforms[found];
 		}
+		/*
 	} catch(Error err) {
 		std::cout << err.what() << "(" << err.err() << ")" << std::endl;
 		error = err.err();
+		}*/
+	}
+	catch (...) {
+		std::cerr << "An error occured" << std::endl;
 	}
 	return ret_val;
 }
@@ -71,21 +77,27 @@ bool checkExtnAvailability(Device pDevice, std::string pName)
 		std::stringstream ss(exts);
 		std::string item;
 		int found = -1;
-		while (std::getline(ss,item,' ')) {
-			if (item==pName) {
-				found=1;
+		while (std::getline(ss, item, ' ')) {
+			if (item == pName) {
+				found = 1;
 				break;
 			}
 		}
-		if (found==1) {
-			std::cout<<"Found CL_GL_SHARING extension: "<<item<<std::endl;
+		if (found == 1) {
+			std::cout << "Found CL_GL_SHARING extension: " << item << std::endl;
 			ret_val = true;
-		} else {
-			std::cout<<"CL_GL_SHARING extension not found\n";
+		}
+		else {
+			std::cout << "CL_GL_SHARING extension not found\n";
 			ret_val = false;
 		}
-	} catch (Error err) {
-		std::cout << err.what() << "(" << err.err() << ")" << std::endl;
+		/*} catch (Error err) {
+			std::cout << err.what() << "(" << err.err() << ")" << std::endl;
+		}*/
+	}
+	catch (...)
+	{
+		std::cerr << "An error occured" << std::endl;
 	}
 	return ret_val;
 }
@@ -98,12 +110,17 @@ Program getProgram(Context pContext, std::string file, cl_int &error)
 	std::string sourceCode(
 			std::istreambuf_iterator<char>(sourceFile),
 			(std::istreambuf_iterator<char>()));
+	/*
 	try {
 		Program::Sources source(1, sourceCode);
 		ret_val = Program(pContext, source);
-	} catch(Error err) {
-		std::cout << err.what() << "(" << err.err() << ")" << std::endl;
-		error = err.err();
+		/*} catch(Error err) {
+			std::cout << err.what() << "(" << err.err() << ")" << std::endl;
+			error = err.err();
+		}/
 	}
+	catch (...) {
+		std::cerr << "An error occured" << std::endl;
+	}*/
 	return ret_val;
 }

@@ -11,7 +11,12 @@
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic ignored "-Wignored-qualifiers"
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#ifndef _WIN32
 #include <CL/cl2.hpp>
+#else
+#pragma warning(disable : 4996)
+#include <CL/cl.hpp>
+#endif // !WIN32
 #pragma GCC diagnostic pop
 
 #if defined (__APPLE__) || defined(MACOSX)

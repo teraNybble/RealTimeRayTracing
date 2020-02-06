@@ -2,15 +2,16 @@
 #include <iostream>
 #include <fstream>
 
+/*
 #ifdef _WIN32
 #include "gl/glew.h"
 #include "gl/wglew.h"
-#pragma comment(lib, "glew32.lib")
+//#pragma comment(lib, "glew32.lib")
 #else
 #include "gl/glew.h"
 #include "gl/glxew.h"
 #endif // _WIN32
-
+*/
 #ifdef _WIN32
 #define to_kB(b) (b/1024.0)
 #define to_MB(b) (to_kB(b)/1024.0)
