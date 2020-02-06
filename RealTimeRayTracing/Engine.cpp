@@ -285,6 +285,7 @@ void Engine::createScreenImage()
  * context can be shared between OpenGL and OpenCL. If resources are allocated before the
  * OpenCL context creation, they cannot be shared between OpenGL and OpenCL.
  */
+
 	if(error != CL_SUCCESS)
 		std::cerr << "error creating cl::ImageGL:\t" << getErrorString(error) << std::endl;
 }
