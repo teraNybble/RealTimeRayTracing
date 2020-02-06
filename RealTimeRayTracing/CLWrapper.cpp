@@ -24,7 +24,7 @@
 
 void CLWrapper::printDeviceInfo(const std::vector<cl::Device>& devices)
 {
-	std::cout << "num devices\t\t" << devices.size() << "\n\n";
+	std::cout << "num devices  \t" << devices.size() << "\n\n";
 
 	int i = 1;
 	for(auto device = devices.begin(); device != devices.end(); device++, i++)
@@ -38,8 +38,8 @@ void CLWrapper::printDeviceInfo(const std::vector<cl::Device>& devices)
 		std::cout << "Device: \t\t\t" << i << "\n";
 		std::cout << "Vendor: \t\t\t" << vendor << "\n";
 		std::cout << "Version:\t\t\t" << version << "\n";
-		std::cout << "Global Memory:\t\t" << to_GB(gmem) << " GB\n";
-		std::cout << "Local Memory:\t\t" << to_kB(lmem) << " kB\n";
+		std::cout << "Global Memory:  \t" << to_GB(gmem) << " GB\n";
+		std::cout << "Local Memory:   \t" << to_kB(lmem) << " kB\n";
 		std::cout << "Constant Memory:\t" << to_kB(cmem) << " kB\n\n";
 	}
 }
