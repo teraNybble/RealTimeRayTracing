@@ -199,42 +199,6 @@ void Engine::createScreenImage()
 
 	cl_int error = CL_SUCCESS;
 
-
-
-
-/*
-
-	for(int i = 0; i < 40; i++)
-		std::cout << "-";
-	std::cout << "\n";
-
-	std::vector<cl::Platform> platforms;
-	cl::Platform::get(&platforms);
-
-	//if the platforms are empty there is no point to running the code
-	if(platforms.empty()) { std::cerr << "platforms is empty" << std::endl;	exit(1); }
-	std::cout << "num platforms\t" << platforms.size() << "\n";
-
-	auto platform = platforms.front();
-	std::vector<cl::Device> devices;
-	platform.getDevices(CL_DEVICE_TYPE_GPU, &devices);
-	auto device = devices.front();
-
-	//if there are no devices then we can't use OpenCL
-	if(devices.empty()) { std::cerr << "devices is empty" << std::endl;	exit(2); }
-
-	//printDeviceInfo(devices);
-	std::cout << "device info goes here\n";
-
-	for(int i = 0; i < 40; i++)
-		std::cout << "-";
-	std::cout << "\n";
-
-	std::ifstream clFile("CLfiles/makeItRed.cl");
-	std::string src(std::istreambuf_iterator<char>(clFile), (std::istreambuf_iterator<char>()));
-
-	cl::Program::Sources sources(1,std::make_pair(src.c_str(), src.length() + 1));
-*/
 	cl::Platform lPlatform = getPlatform();
 #ifdef __linux__
 	cl_context_properties cps[] = {
@@ -252,42 +216,35 @@ void Engine::createScreenImage()
             0
         };
 #endif
-/*
-	cl::Context context(device, cps);
-	cl::Program program(context,sources);
-*/
+
 	raytracer.init("CLfiles/makeItRed.cl", cps);
-/*
-	error = program.build("-cl-std=CL1.2");
-
-	if(error) { std::cerr << "OpenCL error:\t" << getErrorString(error) << std::endl; exit(error); }
-*/
-
-
-
-
-
-
 
 	error = CL_SUCCESS;
-	cl::ImageGL(
+	cl::ImageGL screen(
 		raytracer.getContext(),
 		CL_MEM_WRITE_ONLY,
 		GL_TEXTURE_2D,
 		0,
 		texID,
 		&error);
-/*
- * For OpenGL interoperability with OpenCL, there currently is a requirement on when the
- * OpenCL context is created and when texture/buffer shared allocations can be made. To use
- * shared resources, the OpenGL application must create an OpenGL context and then an
- * OpenCL context. All resources (GL buffers and textures) created after creation of the OpenCL
- * context can be shared between OpenGL and OpenCL. If resources are allocated before the
- * OpenCL context creation, they cannot be shared between OpenGL and OpenCL.
- */
+
 
 	if(error != CL_SUCCESS)
 		std::cerr << "error creating cl::ImageGL:\t" << getErrorString(error) << std::endl;
+
+	raytracer.createKernel("makeItRed");
+	raytracer.setKernelArgs(0, raytracer.getBuffer());
+	raytracer.setKernelArgs(1, screen);
+
+	cl::NDRange screenRange(screenWidth,screenHeight);
+
+	cl::CommandQueue queue(raytracer.getContext(),raytracer.getDevice());
+	//queue.enqueueTask(kernel);
+	queue.enqueueNDRangeKernel(raytracer.getKernel(),0,screenRange);
+
+	cl_int queueError = queue.finish();
+
+	std::cout << queueError << " " << getErrorString(queueError) << std::endl;
 }
 
 void Engine::processEvents()

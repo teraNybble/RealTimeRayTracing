@@ -50,7 +50,7 @@ int main()
 	char buf[7100];//16*9*4
 	CLWrapper clthing;
 	clthing.init("CLfiles/2Dcoords.cl");
-	clthing.createBuffer(CL_MEM_WRITE_ONLY | CL_MEM_HOST_READ_ONLY, sizeof(buf));
+	//clthing.createBuffer(CL_MEM_WRITE_ONLY | CL_MEM_HOST_READ_ONLY, sizeof(buf));
 	clthing.createKernel("getXY");
 
 	clthing.setKernelArgs(0, clthing.getBuffer());
@@ -60,11 +60,11 @@ int main()
 	cl::CommandQueue queue(clthing.getContext(),clthing.getDevice());
 	//queue.enqueueTask(kernel);
 	queue.enqueueNDRangeKernel(clthing.getKernel(),0,screenRange);
-	queue.enqueueReadBuffer(clthing.getBuffer(), CL_TRUE, 0, sizeof(buf), buf);
+	//queue.enqueueReadBuffer(clthing.getBuffer(), CL_TRUE, 0, sizeof(buf), buf);
 
 	//cl_float3 test;
 
-	std::cout << buf;
+	//std::cout << buf;
 
 	Engine engine;
 

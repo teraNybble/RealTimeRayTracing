@@ -4,7 +4,7 @@ void printfoo()
 }
 
 
-__kernel void getXY(__global char* buff)
+__kernel void getXY(/*__global char* buff*/)
 {
 //as this is only a test program I am hard coding the width
 //   int width = 16 * get_global_id(1);

@@ -12,6 +12,11 @@
 #include "gl/glxew.h"
 #endif // _WIN32
 */
+
+#define kB 1024
+#define MB 1048576
+#define GB 1073741824
+
 #ifdef _WIN32
 #define to_kB(b) (b/1024.0)
 #define to_MB(b) (to_kB(b)/1024.0)
@@ -40,7 +45,12 @@ void CLWrapper::printDeviceInfo(const std::vector<cl::Device>& devices)
 		std::cout << "Version:        \t" << version << "\n";
 		std::cout << "Global Memory:  \t" << to_GB(gmem) << " GB\n";
 		std::cout << "Local Memory:   \t" << to_kB(lmem) << " kB\n";
-		std::cout << "Constant Memory:\t" << to_kB(cmem) << " kB\n\n";
+		if(cmem >= GB)
+			std::cout << "Constant Memory:\t" << to_GB(cmem) << " kB\n\n";
+		else if(cmem >= MB)
+			std::cout << "Constant Memory:\t" << to_MB(cmem) << " kB\n\n";
+		else
+			std::cout << "Constant Memory:\t" << to_kB(cmem) << " kB\n\n";
 	}
 }
 
