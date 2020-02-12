@@ -123,7 +123,7 @@ bool Engine::createWindow()
 	/* Make the window's context current */
 	glfwMakeContextCurrent(window);
 
-	if (!glewInit())
+	if (glewInit() != GLEW_OK)
 	{
 		std::cerr << "failed to init glew" << std::endl;
 	}
@@ -233,14 +233,22 @@ void Engine::createScreenImage()
 		std::cerr << "error creating cl::ImageGL:\t" << getErrorString(error) << std::endl;
 
 	raytracer.createKernel("makeItRed");
-	raytracer.setKernelArgs(0, raytracer.getBuffer());
-	raytracer.setKernelArgs(1, screen);
+	//raytracer.setKernelArgs(0, raytracer.getBuffer());
+	raytracer.setKernelArgs(0, screen);
 
 	cl::NDRange screenRange(screenWidth,screenHeight);
 
 	cl::CommandQueue queue(raytracer.getContext(),raytracer.getDevice());
+
+	std::vector<cl::Memory> images(1,screen);
+
+	//tell openGL to let openCL use the memory
+	queue.enqueueAcquireGLObjects(&images,NULL);
 	//queue.enqueueTask(kernel);
 	queue.enqueueNDRangeKernel(raytracer.getKernel(),0,screenRange);
+	//give the memory back to openGL
+	queue.enqueueReleaseGLObjects(&images,NULL);
+
 
 	cl_int queueError = queue.finish();
 
