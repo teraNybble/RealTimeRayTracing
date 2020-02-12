@@ -55,6 +55,11 @@ private:
 	static GLuint texID;
 	static cl_mem textureLoc;
 	static CLWrapper raytracer;
+	static cl::ImageGL screen;
+	static cl::NDRange screenRange;
+	static cl::CommandQueue queue;
+
+	static float red;
 public:
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	void display();

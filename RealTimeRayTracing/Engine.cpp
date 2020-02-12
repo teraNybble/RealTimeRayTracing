@@ -8,6 +8,10 @@ float* Engine::screenImage;
 GLuint Engine::texID;
 cl_mem Engine::textureLoc;
 CLWrapper Engine::raytracer;
+cl::ImageGL Engine::screen;
+cl::NDRange Engine::screenRange;
+cl::CommandQueue Engine::queue;
+float Engine::red;
 
 /*
  * THIS IS THE FUNCTION YOU WHERE PROBABLY LOOKING FOR
@@ -45,6 +49,30 @@ void Engine::display()
 
 	myCube.render(texID);
 	glm::vec3 temp;
+
+	red += 0.001f;
+
+	cl_float3 outColour;
+	outColour.x = red;//R
+	outColour.y = 1.0f;//G
+	outColour.z = 1.0f;//B
+	raytracer.setKernelArgs(0, screen);
+	raytracer.setKernelArgs(1,outColour);
+
+	screenRange = cl::NDRange(screenWidth,screenHeight);
+
+	queue = cl::CommandQueue(raytracer.getContext(),raytracer.getDevice());
+
+	std::vector<cl::Memory> images(1,screen);
+
+	//tell openGL to let openCL use the memory
+	queue.enqueueAcquireGLObjects(&images,NULL);
+	//queue.enqueueTask(kernel);
+	queue.enqueueNDRangeKernel(raytracer.getKernel(),0,screenRange);
+	//give the memory back to openGL
+	queue.enqueueReleaseGLObjects(&images,NULL);
+
+
 	glUseProgram(0); //turn off the current shader
 }
 
@@ -77,6 +105,7 @@ void Engine::init()
 	//raytracer.init("CLfiles/makeItRed.cl");
 
 
+	red = 0.0f;
 	createScreenImage();
 }
 
@@ -220,7 +249,7 @@ void Engine::createScreenImage()
 	raytracer.init("CLfiles/makeItRed.cl", cps);
 
 	error = CL_SUCCESS;
-	cl::ImageGL screen(
+	screen = cl::ImageGL(
 		raytracer.getContext(),
 		CL_MEM_WRITE_ONLY,
 		GL_TEXTURE_2D,
@@ -232,13 +261,18 @@ void Engine::createScreenImage()
 	if(error != CL_SUCCESS)
 		std::cerr << "error creating cl::ImageGL:\t" << getErrorString(error) << std::endl;
 
-	raytracer.createKernel("makeItRed");
+	raytracer.createKernel("makeItAnyColour");
 	//raytracer.setKernelArgs(0, raytracer.getBuffer());
+	cl_float3 outColour;
+	outColour.x = 0.0f;//R
+	outColour.y = 0.0f;//G
+	outColour.z = 1.0f;//B
 	raytracer.setKernelArgs(0, screen);
+	raytracer.setKernelArgs(1,outColour);
 
-	cl::NDRange screenRange(screenWidth,screenHeight);
+	screenRange = cl::NDRange(screenWidth,screenHeight);
 
-	cl::CommandQueue queue(raytracer.getContext(),raytracer.getDevice());
+	queue = cl::CommandQueue(raytracer.getContext(),raytracer.getDevice());
 
 	std::vector<cl::Memory> images(1,screen);
 
