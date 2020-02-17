@@ -7,6 +7,9 @@
 #include <math.h>
 #include <map>
 
+#include <random>
+#include <time.h>
+
 #ifdef _WIN32
 #include "gl/glew.h"
 #include "gl/wglew.h"

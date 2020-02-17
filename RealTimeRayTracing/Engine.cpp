@@ -52,10 +52,18 @@ void Engine::display()
 
 	red += 0.001f;
 
+	std::mt19937 rng;
+
+	rng.seed(time(NULL));
+
+	std::uniform_real_distribution<float> r(0,1);
+	std::uniform_real_distribution<float> g(0,1);
+	std::uniform_real_distribution<float> b(0,1);
+
 	cl_float3 outColour;
-	outColour.x = red;//R
-	outColour.y = 1.0f;//G
-	outColour.z = 1.0f;//B
+	outColour.x = r(rng);//R
+	outColour.y = g(rng);//G
+	outColour.z = b(rng);//B
 	raytracer.setKernelArgs(0, screen);
 	raytracer.setKernelArgs(1,outColour);
 
