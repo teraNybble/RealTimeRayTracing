@@ -64,6 +64,7 @@ private:
 
 	static float red;
 public:
+	static int RaySphereIntersect(glm::vec3 point, glm::vec3 direction, float& t, glm::vec3& q);
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	void display();
 	void init();

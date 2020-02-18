@@ -27,6 +27,27 @@ float Engine::red;
  * cl_int * errcode_ret)
 */
 
+//https://gamedev.stackexchange.com/questions/96459/fast-ray-sphere-collision-code
+int Engine::RaySphereIntersect(glm::vec3 point, glm::vec3 direction, float &t, glm::vec3 &q)
+{
+	//sphere tempraraly hard coded
+	glm::vec3 m = point - glm::vec3(0,0,15);//sphere centre
+	float b = glm::dot(m, direction);
+	float c = glm::dot(m, m) - 1;//sphere radius squared
+
+	if(c > 0.0f && b > 0.0f) 	return 0;
+	float discr = b*b - c;
+
+	if(discr < 0.0f) 			return 0;
+
+	t = -b - std::sqrt(discr);
+
+	if(t < 0.0f) t = 0.0f;
+	q = point + t *direction;
+
+	return 1;
+}
+
 
 void Engine::display()
 {
@@ -61,9 +82,27 @@ void Engine::display()
 	std::uniform_real_distribution<float> b(0,1);
 
 	cl_float3 outColour;
+	/*
 	outColour.x = r(rng);//R
 	outColour.y = g(rng);//G
 	outColour.z = b(rng);//B
+	 */
+
+	float tempfloat;
+	glm::vec3 tempvec;
+	if(RaySphereIntersect(glm::vec3(0,0,0),glm::vec3(0,0,1),tempfloat,tempvec))	{
+		outColour.x = 1;
+		outColour.y = 0;
+		outColour.z = 0;
+	}else{
+		outColour.x = 0;
+		outColour.y = 0;
+		outColour.z = 0;
+	}
+
+	std::cout << "tempfloat\t" << tempfloat << "\n";
+	std::cout << "tempvec  \t" << tempvec.x << "," << tempvec.y << "," << tempvec.z << "\n";
+
 	raytracer.setKernelArgs(0, screen);
 	raytracer.setKernelArgs(1,outColour);
 
