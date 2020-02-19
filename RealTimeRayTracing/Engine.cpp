@@ -11,6 +11,7 @@ CLWrapper Engine::raytracer;
 cl::ImageGL Engine::screen;
 cl::NDRange Engine::screenRange;
 cl::CommandQueue Engine::queue;
+float Engine::screenDist;
 
 /*
  * THIS IS THE FUNCTION YOU WHERE PROBABLY LOOKING FOR
@@ -34,7 +35,14 @@ float Engine::calculateFOV(glm::vec2 a, glm::vec2 b, glm::vec2 c)
 	v1 = glm::normalize(v1);
 	v2 = glm::normalize(v2);
 
-	return (acos(glm::dot(v1,v2))*180/3.14159265358979);
+	return (acos(glm::dot(v1,v2))*180/PI);
+}
+
+float Engine::calculateDist(float fov)
+{
+	//tan is in radians so I need to convert from degrees
+	return tan((180-(fov/2.0f)-90)*PI/180)*(screenWidth/2.0f);
+	//return tan(180-(fov/2.0f)-90)*screenWidth;
 }
 
 //https://gamedev.stackexchange.com/questions/96459/fast-ray-sphere-collision-code
@@ -87,7 +95,7 @@ void Engine::display()
 	camPos.y = screenHeight/2.0f;
 	camPos.z = 0;
 	raytracer.setKernelArgs(1,camPos);
-	raytracer.setKernelArgs(2,camPos);//this is screen pos but its unused ATM so im using camPos
+	raytracer.setKernelArgs(2, screenDist);
 
 	screenRange = cl::NDRange(screenWidth,screenHeight);
 
@@ -129,8 +137,12 @@ void Engine::init()
 	glEnable(GL_DEPTH_TEST);
 
 	createScreenImage();
-	float dis = 650;
-	std::cout << "FOV:\t" << calculateFOV(glm::vec2(640,0),glm::vec2(0,dis),glm::vec2(1280,dis)) << "\n";
+
+	screenDist = calculateDist(90);
+
+	std::cout << "screenDist\t" << screenDist << "\n";
+
+	std::cout << "FOV:\t" << calculateFOV(glm::vec2(640,0),glm::vec2(0,screenDist),glm::vec2(1280,screenDist)) << "\u00B0\n";
 }
 
 void Engine::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)

@@ -29,12 +29,14 @@ float magnitude(float3 vec)
 	return sqrt((vec.x*vec.x)+(vec.y*vec.y)+(vec.z*vec.z));
 }
 
-float4 calculatePixelColour(float3 cameraPos, float3 screenPos)
+float4 calculatePixelColour(float3 cameraPos, float screenDist)
 {
+	float3 screenPos;
 	//ray code goes here
 	screenPos.x = (get_global_id(0));
 	screenPos.y = (get_global_id(1));
-	screenPos.z = 650;//hard coding the screen distance
+	screenPos.z = screenDist;
+	//screenPos.z = 650;//hard coding the screen distance
 	float3 direction = screenPos - cameraPos;
 	direction = (direction)/magnitude(direction);
 	float t;
@@ -48,10 +50,10 @@ float4 calculatePixelColour(float3 cameraPos, float3 screenPos)
 	return BACKGROUND_COLOUR;
 }
 
-__kernel void raytracer(__write_only image2d_t image, float3 cameraPos, float3 screenPos)
+__kernel void raytracer(__write_only image2d_t image, float3 cameraPos, float screenDist)
 {
 	int2 pos = (int2)(get_global_id(0),get_global_id(1));
 	//float4 colour = (float4)(inColour,1);
-	float4 colour = calculatePixelColour(cameraPos, screenPos);
+	float4 colour = calculatePixelColour(cameraPos, screenDist);
 	write_imagef(image,pos,colour);
 }

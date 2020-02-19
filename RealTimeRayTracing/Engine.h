@@ -36,6 +36,8 @@
 
 #include "OpenCLUtil.h"
 
+#define PI 3.14159265358979
+
 class Engine
 {
 private:
@@ -58,7 +60,11 @@ private:
 	static cl::ImageGL screen;
 	static cl::NDRange screenRange;
 	static cl::CommandQueue queue;
+
+	static float screenDist;
+
 	static float calculateFOV(glm::vec2 a, glm::vec2 b, glm::vec2 c);
+	static float calculateDist(float fov);
 public:
 	static int RaySphereIntersect(glm::vec3 point, glm::vec3 direction, float& t, glm::vec3& q);
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
