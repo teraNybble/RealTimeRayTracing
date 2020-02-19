@@ -58,6 +58,7 @@ private:
 	static cl::ImageGL screen;
 	static cl::NDRange screenRange;
 	static cl::CommandQueue queue;
+	static float calculateFOV(glm::vec2 a, glm::vec2 b, glm::vec2 c);
 public:
 	static int RaySphereIntersect(glm::vec3 point, glm::vec3 direction, float& t, glm::vec3& q);
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);

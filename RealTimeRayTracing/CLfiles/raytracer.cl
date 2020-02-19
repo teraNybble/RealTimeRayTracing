@@ -2,7 +2,7 @@
 
 int raySphereIntersect(float3 point, float3 direction,float* t, float3* q)
 {
-	float3 spherePos = (float3)(0,0,15);
+	float3 spherePos = (float3)(640,360,15);
 	float sphereRadius = 1;
 
 	float3 m = point - spherePos;
@@ -24,12 +24,22 @@ int raySphereIntersect(float3 point, float3 direction,float* t, float3* q)
 	return 1;
 }
 
-float4 calculatePixelColour(float3 cameraPos)
+float magnitude(float3 vec)
+{
+	return sqrt((vec.x*vec.x)+(vec.y*vec.y)+(vec.z*vec.z));
+}
+
+float4 calculatePixelColour(float3 cameraPos, float3 screenPos)
 {
 	//ray code goes here
+	screenPos.x = (get_global_id(0));
+	screenPos.y = (get_global_id(1));
+	screenPos.z = 650;//hard coding the screen distance
+	float3 direction = screenPos - cameraPos;
+	direction = (direction)/magnitude(direction);
 	float t;
 	float3 q;
-	if(raySphereIntersect(cameraPos, (float3)(0,0,1), &t, &q)){
+	if(raySphereIntersect(cameraPos, direction, &t, &q)){
 		return (float4)(1,0,0,1);
 	}
 
@@ -42,6 +52,6 @@ __kernel void raytracer(__write_only image2d_t image, float3 cameraPos, float3 s
 {
 	int2 pos = (int2)(get_global_id(0),get_global_id(1));
 	//float4 colour = (float4)(inColour,1);
-	float4 colour = calculatePixelColour(cameraPos);
+	float4 colour = calculatePixelColour(cameraPos, screenPos);
 	write_imagef(image,pos,colour);
 }

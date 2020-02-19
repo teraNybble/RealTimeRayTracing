@@ -26,6 +26,17 @@ cl::CommandQueue Engine::queue;
  * cl_int * errcode_ret)
 */
 
+float Engine::calculateFOV(glm::vec2 a, glm::vec2 b, glm::vec2 c)
+{
+	glm::vec2 v1 = b-a;
+	glm::vec2 v2 = c-a;
+
+	v1 = glm::normalize(v1);
+	v2 = glm::normalize(v2);
+
+	return (acos(glm::dot(v1,v2))*180/3.14159265358979);
+}
+
 //https://gamedev.stackexchange.com/questions/96459/fast-ray-sphere-collision-code
 int Engine::RaySphereIntersect(glm::vec3 point, glm::vec3 direction, float &t, glm::vec3 &q)
 {
@@ -72,8 +83,8 @@ void Engine::display()
 	raytracer.setKernelArgs(0, screen);
 	//raytracer.setKernelArgs(1,outColour);
 	cl_float3 camPos;
-	camPos.x = 0;
-	camPos.y = 0;
+	camPos.x = screenWidth/2.0f;
+	camPos.y = screenHeight/2.0f;
 	camPos.z = 0;
 	raytracer.setKernelArgs(1,camPos);
 	raytracer.setKernelArgs(2,camPos);//this is screen pos but its unused ATM so im using camPos
@@ -118,6 +129,8 @@ void Engine::init()
 	glEnable(GL_DEPTH_TEST);
 
 	createScreenImage();
+	float dis = 650;
+	std::cout << "FOV:\t" << calculateFOV(glm::vec2(640,0),glm::vec2(0,dis),glm::vec2(1280,dis)) << "\n";
 }
 
 void Engine::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -152,7 +165,7 @@ bool Engine::createWindow()
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
 	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(screenWidth, screenHeight, "OpenGL test", NULL, NULL);
+	window = glfwCreateWindow(screenWidth, screenHeight, "Realtime ratracing test", NULL, NULL);
 	if (!window)
 	{
 		std::cerr << "failed to create window\n";
