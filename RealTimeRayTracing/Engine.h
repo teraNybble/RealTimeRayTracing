@@ -7,9 +7,6 @@
 #include <math.h>
 #include <map>
 
-#include <random>
-#include <time.h>
-
 #ifdef _WIN32
 #include "gl/glew.h"
 #include "gl/wglew.h"
@@ -61,8 +58,6 @@ private:
 	static cl::ImageGL screen;
 	static cl::NDRange screenRange;
 	static cl::CommandQueue queue;
-
-	static float red;
 public:
 	static int RaySphereIntersect(glm::vec3 point, glm::vec3 direction, float& t, glm::vec3& q);
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -71,7 +66,6 @@ public:
 	static void reshape(GLFWwindow* window, int width, int height);
 	bool createWindow();
 	void createScreenImage();
-	void createCheckerBoard();
 	void processEvents();
 	int mainLoop();
 };

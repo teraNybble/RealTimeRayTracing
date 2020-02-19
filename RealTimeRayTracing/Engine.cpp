@@ -11,7 +11,6 @@ CLWrapper Engine::raytracer;
 cl::ImageGL Engine::screen;
 cl::NDRange Engine::screenRange;
 cl::CommandQueue Engine::queue;
-float Engine::red;
 
 /*
  * THIS IS THE FUNCTION YOU WHERE PROBABLY LOOKING FOR
@@ -69,40 +68,6 @@ void Engine::display()
 	myCube.setMatrix(ModelViewMatrix);
 
 	myCube.render(texID);
-	glm::vec3 temp;
-
-	red += 0.001f;
-
-	std::mt19937 rng;
-
-	rng.seed(time(NULL));
-
-	std::uniform_real_distribution<float> r(0,1);
-	std::uniform_real_distribution<float> g(0,1);
-	std::uniform_real_distribution<float> b(0,1);
-
-	cl_float3 outColour;
-	/*
-	outColour.x = r(rng);//R
-	outColour.y = g(rng);//G
-	outColour.z = b(rng);//B
-	 */
-/*
-	float tempfloat;
-	glm::vec3 tempvec;
-	if(RaySphereIntersect(glm::vec3(0,0,0),glm::vec3(0,0,1),tempfloat,tempvec))	{
-		outColour.x = 1;
-		outColour.y = 0;
-		outColour.z = 0;
-	}else{
-		outColour.x = 0;
-		outColour.y = 0;
-		outColour.z = 0;
-	}
-
-	std::cout << "tempfloat\t" << tempfloat << "\n";
-	std::cout << "tempvec  \t" << tempvec.x << "," << tempvec.y << "," << tempvec.z << "\n";
-*/
 
 	raytracer.setKernelArgs(0, screen);
 	//raytracer.setKernelArgs(1,outColour);
@@ -144,8 +109,6 @@ void Engine::init()
 		std::cerr << "failed to load shader" << std::endl;
 	}
 
-
-
 	myCube.constructGeometry(&myShader,screenWidth,screenHeight);
 
 	keyMap.insert(std::pair<int,bool>(GLFW_KEY_KP_1,false));
@@ -154,11 +117,6 @@ void Engine::init()
 
 	glEnable(GL_DEPTH_TEST);
 
-	//set up the openCL code for the raytracer
-	//raytracer.init("CLfiles/makeItRed.cl");
-
-
-	red = 0.0f;
 	createScreenImage();
 }
 
@@ -254,16 +212,7 @@ void Engine::createScreenImage()
 			screenImage[3*(i*screenWidth+j)+2] = b;	//B
 		}
 	}
-/*
-	for(int i = 0; i < screenHeight*screenWidth*3; i+=3)
-	{
-		std::cout << screenImage[i+0] << "";
-		std::cout << screenImage[i+1] << "";
-		std::cout << screenImage[i+2] << " ";
-		if((i % 256)==0) std::cout << "\n";
-		//std::cout << screenImage[i+3] << "\n";
-	}
-*/
+
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	glGenTextures(1, &texID);
@@ -315,79 +264,11 @@ void Engine::createScreenImage()
 		std::cerr << "error creating cl::ImageGL:\t" << getErrorString(error) << std::endl;
 
 	raytracer.createKernel("raytracer");
-	//raytracer.setKernelArgs(0, raytracer.getBuffer());
-	/*
-	cl_float3 outColour;
-	outColour.x = 0.0f;//R
-	outColour.y = 0.0f;//G
-	outColour.z = 1.0f;//B
-	raytracer.setKernelArgs(0, screen);
-	raytracer.setKernelArgs(1,outColour);
-
-	screenRange = cl::NDRange(screenWidth,screenHeight);
-
-	queue = cl::CommandQueue(raytracer.getContext(),raytracer.getDevice());
-
-	std::vector<cl::Memory> images(1,screen);
-
-	std::cout << "Queue start\n";
-
-	//tell openGL to let openCL use the memory
-	queue.enqueueAcquireGLObjects(&images,NULL);
-	//queue.enqueueTask(kernel);
-	queue.enqueueNDRangeKernel(raytracer.getKernel(),0,screenRange);
-	//give the memory back to openGL
-	queue.enqueueReleaseGLObjects(&images,NULL);
-
-	std::cout << "Queue end\n";
-
-	cl_int queueError = queue.finish();
-
-	std::cout << queueError << " " << getErrorString(queueError) << std::endl;
-	 */
 }
 
 void Engine::processEvents()
 {
 	glfwPollEvents();
-
-	if(keyMap.at(GLFW_KEY_KP_1))
-	{
-		std::cout << "make it red\n";
-		for (int i = 0; i < screenWidth; i++)
-		{
-			for (int j = 0; j < screenHeight; j++)
-			{
-				screenImage[3*(j*screenWidth+i)+0] = 1;	//R
-				screenImage[3*(j*screenWidth+i)+1] = 0;	//G
-				screenImage[3*(j*screenWidth+i)+2] = 0;	//B
-			}
-		}
-	}
-	if(keyMap.at(GLFW_KEY_KP_2))
-	{
-		for (int i = 0; i < screenWidth; i++)
-		{
-			for (int j = 0; j < screenHeight; j++)
-			{
-				screenImage[3*(j*screenWidth+i)+0] = 0;	//R
-				screenImage[3*(j*screenWidth+i)+1] = 1;	//G
-				screenImage[3*(j*screenWidth+i)+2] = 0;	//B
-			}
-		}
-	}
-	if(keyMap.at(GLFW_KEY_KP_3))
-	{
-		for (int i = 0; i < screenWidth; i++)
-		{
-			for (int j = 0; j < screenHeight; j++)
-			{
-				screenImage[3*(j*screenWidth+i)+0] = 0;	//R
-				screenImage[3*(j*screenWidth+i)+1] = 0;	//G
-				screenImage[3*(j*screenWidth+i)+2] = 1;	//B
-			}
-		}
-	}
 
 	if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
