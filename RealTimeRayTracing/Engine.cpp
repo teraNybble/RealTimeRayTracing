@@ -87,7 +87,7 @@ void Engine::display()
 	outColour.y = g(rng);//G
 	outColour.z = b(rng);//B
 	 */
-
+/*
 	float tempfloat;
 	glm::vec3 tempvec;
 	if(RaySphereIntersect(glm::vec3(0,0,0),glm::vec3(0,0,1),tempfloat,tempvec))	{
@@ -102,9 +102,16 @@ void Engine::display()
 
 	std::cout << "tempfloat\t" << tempfloat << "\n";
 	std::cout << "tempvec  \t" << tempvec.x << "," << tempvec.y << "," << tempvec.z << "\n";
+*/
 
 	raytracer.setKernelArgs(0, screen);
-	raytracer.setKernelArgs(1,outColour);
+	//raytracer.setKernelArgs(1,outColour);
+	cl_float3 camPos;
+	camPos.x = 0;
+	camPos.y = 0;
+	camPos.z = 0;
+	raytracer.setKernelArgs(1,camPos);
+	raytracer.setKernelArgs(2,camPos);//this is screen pos but its unused ATM so im using camPos
 
 	screenRange = cl::NDRange(screenWidth,screenHeight);
 
@@ -118,7 +125,6 @@ void Engine::display()
 	queue.enqueueNDRangeKernel(raytracer.getKernel(),0,screenRange);
 	//give the memory back to openGL
 	queue.enqueueReleaseGLObjects(&images,NULL);
-
 
 	glUseProgram(0); //turn off the current shader
 }
@@ -293,7 +299,7 @@ void Engine::createScreenImage()
         };
 #endif
 
-	raytracer.init("CLfiles/makeItRed.cl", cps);
+	raytracer.init("CLfiles/raytracer.cl", cps);
 
 	error = CL_SUCCESS;
 	screen = cl::ImageGL(
@@ -308,8 +314,9 @@ void Engine::createScreenImage()
 	if(error != CL_SUCCESS)
 		std::cerr << "error creating cl::ImageGL:\t" << getErrorString(error) << std::endl;
 
-	raytracer.createKernel("makeItAnyColour");
+	raytracer.createKernel("raytracer");
 	//raytracer.setKernelArgs(0, raytracer.getBuffer());
+	/*
 	cl_float3 outColour;
 	outColour.x = 0.0f;//R
 	outColour.y = 0.0f;//G
@@ -323,6 +330,8 @@ void Engine::createScreenImage()
 
 	std::vector<cl::Memory> images(1,screen);
 
+	std::cout << "Queue start\n";
+
 	//tell openGL to let openCL use the memory
 	queue.enqueueAcquireGLObjects(&images,NULL);
 	//queue.enqueueTask(kernel);
@@ -330,10 +339,12 @@ void Engine::createScreenImage()
 	//give the memory back to openGL
 	queue.enqueueReleaseGLObjects(&images,NULL);
 
+	std::cout << "Queue end\n";
 
 	cl_int queueError = queue.finish();
 
 	std::cout << queueError << " " << getErrorString(queueError) << std::endl;
+	 */
 }
 
 void Engine::processEvents()

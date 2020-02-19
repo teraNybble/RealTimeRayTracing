@@ -91,7 +91,18 @@ cl::Program CLWrapper::createProgram(const std::string& file, cl_context_propert
 
 	auto error = program.build("-cl-std=CL1.2");
 
-	if(error) { std::cerr << "OpenCL error:\t" << getErrorString(error) << std::endl; exit(error); }
+	if(error == CL_BUILD_PROGRAM_FAILURE){
+		size_t logSize;
+		clGetProgramBuildInfo(program(),device(),CL_PROGRAM_BUILD_LOG,0,NULL, &logSize);
+
+		char* log = (char*) malloc(logSize);
+
+		clGetProgramBuildInfo(program(),device(),CL_PROGRAM_BUILD_LOG,logSize,log,NULL);
+
+		std::cerr << "OpenCL build error:\n" << log << std::endl;
+		exit(error);
+
+	}else if(error) { std::cerr << "OpenCL error:\t" << getErrorString(error) << std::endl; exit(error); }
 
 	return program;
 }
