@@ -63,8 +63,14 @@ private:
 
 	static float screenDist;
 
+	static std::vector<float> spheres;
+	static int numSpheres;
+
 	static float calculateFOV(glm::vec2 a, glm::vec2 b, glm::vec2 c);
 	static float calculateDist(float fov);
+
+	static void createSpheres();
+	static void addSphere(glm::vec3 pos, float r, glm::vec3 colour);
 public:
 	static int RaySphereIntersect(glm::vec3 point, glm::vec3 direction, float& t, glm::vec3& q);
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);

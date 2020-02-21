@@ -47,24 +47,27 @@ int main()
 
 	kernel.setArg(0, memBuf);
 */
-	char buf[7100];//16*9*4
+	char buf[13];//16*9*4
 	CLWrapper clthing;
-	clthing.init("CLfiles/2Dcoords.cl");
-	//clthing.createBuffer(CL_MEM_WRITE_ONLY | CL_MEM_HOST_READ_ONLY, sizeof(buf));
-	clthing.createKernel("getXY");
+	clthing.init("CLfiles/helloWorld.cl");
+	//cl::Buffer(clthing.getContext(),CL_MEM_WRITE_ONLY | CL_MEM_HOST_READ_ONLY, sizeof(buf));
+	clthing.createBuffer(CL_MEM_WRITE_ONLY | CL_MEM_HOST_READ_ONLY, sizeof(buf));
+	clthing.createKernel("HelloWorld");
 
 	clthing.setKernelArgs(0, clthing.getBuffer());
 
-	cl::NDRange screenRange(16,9);
+	//cl::NDRange screenRange(16,9);
 
 	cl::CommandQueue queue(clthing.getContext(),clthing.getDevice());
-	//queue.enqueueTask(kernel);
-	queue.enqueueNDRangeKernel(clthing.getKernel(),0,screenRange);
-	//queue.enqueueReadBuffer(clthing.getBuffer(), CL_TRUE, 0, sizeof(buf), buf);
+	queue.enqueueTask(clthing.getKernel());
+	//queue.enqueueNDRangeKernel(clthing.getKernel(),0,screenRange);
+	queue.enqueueReadBuffer(clthing.getBuffer(), CL_TRUE, 0, sizeof(buf), buf);
 
 	//cl_float3 test;
 
-	//std::cout << buf;
+	std::cout << buf;
+
+	//  return 69;
 
 	Engine engine;
 

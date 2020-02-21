@@ -12,7 +12,8 @@ cl::ImageGL Engine::screen;
 cl::NDRange Engine::screenRange;
 cl::CommandQueue Engine::queue;
 float Engine::screenDist;
-
+std::vector<float> Engine::spheres;
+int Engine::numSpheres;
 /*
  * THIS IS THE FUNCTION YOU WHERE PROBABLY LOOKING FOR
  *
@@ -43,6 +44,45 @@ float Engine::calculateDist(float fov)
 	//tan is in radians so I need to convert from degrees
 	return tan((180-(fov/2.0f)-90)*PI/180)*(screenWidth/2.0f);
 	//return tan(180-(fov/2.0f)-90)*screenWidth;
+}
+
+void Engine::createSpheres()
+{
+	/*
+	spheres.push_back(640);	//X
+	spheres.push_back(360);	//Y
+	spheres.push_back(15);	//Z
+
+	spheres.push_back(1);	//radius
+
+	spheres.push_back(1);	//R
+	spheres.push_back(0);	//G
+	spheres.push_back(0);	//B
+
+	numSpheres = 1;
+*/
+	numSpheres = 0;
+
+	addSphere(glm::vec3(640,360,15),1,glm::vec3(1,0,0));
+	addSphere(glm::vec3(650,360,30),5,glm::vec3(0,1,0));
+	addSphere(glm::vec3(610,345,50),7,glm::vec3(0,0,1));
+
+	spheres.shrink_to_fit();
+}
+
+void Engine::addSphere(glm::vec3 pos, float r, glm::vec3 colour)
+{
+	spheres.push_back(pos.x);	//X
+	spheres.push_back(pos.y);	//Y
+	spheres.push_back(pos.z);	//Z
+
+	spheres.push_back(r);	//radius
+
+	spheres.push_back(colour.r);	//R
+	spheres.push_back(colour.g);	//G
+	spheres.push_back(colour.b);	//B
+
+	numSpheres++;
 }
 
 //https://gamedev.stackexchange.com/questions/96459/fast-ray-sphere-collision-code
@@ -96,11 +136,12 @@ void Engine::display()
 	camPos.z = 0;
 	raytracer.setKernelArgs(1,camPos);
 	raytracer.setKernelArgs(2, screenDist);
+	raytracer.setKernelArgs(3, raytracer.getBuffer());
+	raytracer.setKernelArgs(4, numSpheres);
 
 	screenRange = cl::NDRange(screenWidth,screenHeight);
 
 	queue = cl::CommandQueue(raytracer.getContext(),raytracer.getDevice());
-
 	std::vector<cl::Memory> images(1,screen);
 
 	//tell openGL to let openCL use the memory
@@ -136,8 +177,10 @@ void Engine::init()
 
 	glEnable(GL_DEPTH_TEST);
 
-	createScreenImage();
+	createSpheres();
 
+	createScreenImage();
+	raytracer.createBuffer(CL_MEM_READ_ONLY | CL_MEM_HOST_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float)*spheres.size(), spheres.data());
 	screenDist = calculateDist(90);
 
 	std::cout << "screenDist\t" << screenDist << "\n";
@@ -287,6 +330,8 @@ void Engine::createScreenImage()
 
 	if(error != CL_SUCCESS)
 		std::cerr << "error creating cl::ImageGL:\t" << getErrorString(error) << std::endl;
+
+	//raytracer.createBuffer(CL_MEM_READ_ONLY | CL_MEM_HOST_WRITE_ONLY, sizeof(spheres));
 
 	raytracer.createKernel("raytracer");
 }
