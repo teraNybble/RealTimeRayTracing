@@ -72,17 +72,17 @@ void GLScreen::constructGeometry(Shader* myShader, unsigned int width, unsigned 
 
 	if(width > height)
 	{
-		texCoords[0] = 1.0f; texCoords[1] = ratio;
-		texCoords[2] = 1.0f; texCoords[3] = 0.0f;
-		texCoords[4] = 0.0f; texCoords[5] = 0.0f;
-		texCoords[6] = 0.0f; texCoords[7] = ratio;
+		texCoords[0] = 1.0f; texCoords[1] = 0.0f;
+		texCoords[2] = 1.0f; texCoords[3] = ratio;
+		texCoords[4] = 0.0f; texCoords[5] = ratio;
+		texCoords[6] = 0.0f; texCoords[7] = 0.0f;
 	}
 	else
 	{
-		texCoords[0] = ratio; texCoords[1] = 1.0f;
-		texCoords[2] = ratio; texCoords[3] = 0.0f;
-		texCoords[4] = 0.0f; texCoords[5] = 0.0f;
-		texCoords[6] = 0.0f; texCoords[7] = 1.0f;
+		texCoords[0] = ratio; texCoords[1] = 0.0f;
+		texCoords[2] = ratio; texCoords[3] = 1.0f;
+		texCoords[4] = 0.0f; texCoords[5] = 1.0f;
+		texCoords[6] = 0.0f; texCoords[7] = 0.0f;
 	}
 
 	tris[ 0]=0; tris[ 1]=1; tris[ 2]=2;

@@ -66,6 +66,7 @@ void Engine::createSpheres()
 	addSphere(glm::vec3(640,360,15),1,glm::vec3(1,0,0));
 	addSphere(glm::vec3(650,360,30),5,glm::vec3(0,1,0));
 	addSphere(glm::vec3(610,345,50),7,glm::vec3(0,0,1));
+	addSphere(glm::vec3(660,375,50),7,glm::vec3(1,0,1));
 
 	spheres.shrink_to_fit();
 }

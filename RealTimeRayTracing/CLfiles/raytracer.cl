@@ -1,5 +1,48 @@
 #define BACKGROUND_COLOUR (float4)(0,0,0,1)
 
+//useful vector functions
+float magnitude(float3 vec)
+{
+	return sqrt((vec.x*vec.x)+(vec.y*vec.y)+(vec.z*vec.z));
+}
+
+float3 reflect(float3 I, float3 N)
+{
+	return (I - 2.0f * dot(N,I) * N);
+}
+
+#define normalise(x) ({x/magnitude(x);})
+//!useful vector functions
+float4 calculateLighting(
+	float4 inColour, float3 inNormal,
+	float3 eyePos, float3 lightDirection, float4 lightAmbient, float4 lightSpecular,
+	float4 materialAmbient, float4 materialDiffuse, float4 materialSpecular , float materialShininess)
+{
+	float3 n = normalise(inNormal);
+	float3 L = normalise(lightDirection);
+
+	float3 v = normalise(-eyePos);
+	float3 r = normalise(-reflect(L,n));
+
+	float RdotV = max(0.0f,(float)dot(r,v));
+	float NdotL = max((float)dot(n,L),0.0f);
+
+	float4  colour = lightAmbient * materialAmbient;
+
+	//printf("calculated colour %1.2v3hlf\n", colour);
+	//printf("NdotL %1.2v8hlf\n", (float8)(n,0.69,0.42,L));
+	//printf("NdotL %d\n", NdotL);
+
+	if(NdotL > 0.0)
+	{
+		colour += (lightAmbient * materialDiffuse * NdotL);
+	}
+
+	colour += materialSpecular * lightSpecular * pow(RdotV, materialShininess);
+
+	return colour * inColour;
+}
+
 int raySphereIntersect(float3 point, float3 direction,float* t, float3* q, float3 spherePos, float sphereRadius)
 {
 	//float3 spherePos = (float3)(640,360,15);//640,360,15
@@ -24,11 +67,6 @@ int raySphereIntersect(float3 point, float3 direction,float* t, float3* q, float
 	return 1;
 }
 
-float magnitude(float3 vec)
-{
-	return sqrt((vec.x*vec.x)+(vec.y*vec.y)+(vec.z*vec.z));
-}
-
 float4 calculatePixelColour(float3 cameraPos, float screenDist, __global float* sphereData, int numSpheres)
 {
 	float3 screenPos;
@@ -48,8 +86,6 @@ float4 calculatePixelColour(float3 cameraPos, float screenDist, __global float* 
 			sphereData[(i*7)+2]
 		);
 
-		float3 temp = (float3)(69,420,8008);
-
 		//printf("sphere pos %4.0v3hlf\n", spherePos);
 		if(raySphereIntersect(cameraPos, direction, &t, &q, spherePos, sphereData[(i*7)+3])){
 			float4 sphereColour = (float4)(
@@ -58,7 +94,14 @@ float4 calculatePixelColour(float3 cameraPos, float screenDist, __global float* 
 				sphereData[(i*7)+6],
 				1
 			);
-			return sphereColour;
+			//get the light direction vector
+			float3 lightPos = (float3)(640,-1000,60);
+			float3 lightDirection = q - lightPos;
+			float3 normalVec = q - spherePos;
+			//return sphereColour;
+			return calculateLighting(sphereColour,normalVec,cameraPos,
+				lightDirection,(float4)(0.8,0.8,0.8,1.0),(float4)(0.9,0.9,0.9,1.0),//light //direction ambiant specular
+				(float4)(0.2,0.2,0.2,1.0),(float4)(0.8,0.8,0.8,1.0),(float4)(0.9,0.9,0.9,1.0),50);//material //ambient diffuse specular shininess
 		}
 	}
 
