@@ -353,8 +353,10 @@ void Engine::createScreenImage()
 		&error);
 
 
-	if(error != CL_SUCCESS)
+	if (error != CL_SUCCESS) {
 		std::cerr << "error creating cl::ImageGL:\t" << getErrorString(error) << std::endl;
+		exit(error);
+	}
 
 	//raytracer.createBuffer(CL_MEM_READ_ONLY | CL_MEM_HOST_WRITE_ONLY, sizeof(spheres));
 
