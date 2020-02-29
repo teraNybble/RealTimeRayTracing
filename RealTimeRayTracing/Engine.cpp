@@ -63,15 +63,17 @@ void Engine::createSpheres()
 */
 	numSpheres = 0;
 
-	addSphere(glm::vec3(640,360,15),1,glm::vec3(1,0,0));
-	addSphere(glm::vec3(650,360,30),5,glm::vec3(0,1,0));
-	addSphere(glm::vec3(610,345,50),7,glm::vec3(0,0,1));
-	addSphere(glm::vec3(660,375,50),7,glm::vec3(1,0,1));
+	addSphere(glm::vec3(640,360,15),1,glm::vec3(1,0,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
+	addSphere(glm::vec3(650,360,30),5,glm::vec3(0,1,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
+	addSphere(glm::vec3(610,345,50),7,glm::vec3(0,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
+	addSphere(glm::vec3(660,375,50),7,glm::vec3(1,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
 
 	spheres.shrink_to_fit();
 }
 
-void Engine::addSphere(glm::vec3 pos, float r, glm::vec3 colour)
+void Engine::addSphere(glm::vec3 pos, float r, glm::vec3 colour,
+		glm::vec3 lightAmbiant, glm::vec3 lightSpecular,
+		glm::vec3 materialAmbiant, glm::vec3 materialDiffuse, glm::vec3 materialSpecular, float materialShinyness)
 {
 	spheres.push_back(pos.x);	//X
 	spheres.push_back(pos.y);	//Y
@@ -82,6 +84,28 @@ void Engine::addSphere(glm::vec3 pos, float r, glm::vec3 colour)
 	spheres.push_back(colour.r);	//R
 	spheres.push_back(colour.g);	//G
 	spheres.push_back(colour.b);	//B
+
+	spheres.push_back(lightAmbiant.r);
+	spheres.push_back(lightAmbiant.g);
+	spheres.push_back(lightAmbiant.b);
+
+	spheres.push_back(lightSpecular.r);
+	spheres.push_back(lightSpecular.g);
+	spheres.push_back(lightSpecular.b);
+
+	spheres.push_back(materialAmbiant.r);
+	spheres.push_back(materialAmbiant.g);
+	spheres.push_back(materialAmbiant.b);
+
+	spheres.push_back(materialDiffuse.r);
+	spheres.push_back(materialDiffuse.g);
+	spheres.push_back(materialDiffuse.b);
+
+	spheres.push_back(materialSpecular.r);
+	spheres.push_back(materialSpecular.g);
+	spheres.push_back(materialSpecular.b);
+
+	spheres.push_back(materialShinyness);
 
 	numSpheres++;
 }

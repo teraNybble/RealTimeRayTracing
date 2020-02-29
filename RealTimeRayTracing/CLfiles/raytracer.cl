@@ -36,9 +36,10 @@ float4 calculateLighting(
 	if(NdotL > 0.0)
 	{
 		colour += (lightAmbient * materialDiffuse * NdotL);
+		colour += materialSpecular * lightSpecular * pow(RdotV, materialShininess);
 	}
 
-	colour += materialSpecular * lightSpecular * pow(RdotV, materialShininess);
+
 
 	return colour * inColour;
 }
@@ -67,6 +68,8 @@ int raySphereIntersect(float3 point, float3 direction,float* t, float3* q, float
 	return 1;
 }
 
+#define SPHERE_DATA_SIZE 23
+
 float4 calculatePixelColour(float3 cameraPos, float screenDist, __global float* sphereData, int numSpheres)
 {
 	float3 screenPos;
@@ -81,27 +84,57 @@ float4 calculatePixelColour(float3 cameraPos, float screenDist, __global float* 
 	float3 q;
 	for(int i = 0; i < numSpheres; i++){
 		float3 spherePos = (float3)(
-			sphereData[(i*7)+0],
-			sphereData[(i*7)+1],
-			sphereData[(i*7)+2]
+			sphereData[(i*SPHERE_DATA_SIZE)+0],
+			sphereData[(i*SPHERE_DATA_SIZE)+1],
+			sphereData[(i*SPHERE_DATA_SIZE)+2]
 		);
 
 		//printf("sphere pos %4.0v3hlf\n", spherePos);
-		if(raySphereIntersect(cameraPos, direction, &t, &q, spherePos, sphereData[(i*7)+3])){
+		if(raySphereIntersect(cameraPos, direction, &t, &q, spherePos, sphereData[(i*SPHERE_DATA_SIZE)+3])){
 			float4 sphereColour = (float4)(
-				sphereData[(i*7)+4],
-				sphereData[(i*7)+5],
-				sphereData[(i*7)+6],
+				sphereData[(i*SPHERE_DATA_SIZE)+4],
+				sphereData[(i*SPHERE_DATA_SIZE)+5],
+				sphereData[(i*SPHERE_DATA_SIZE)+6],
 				1
 			);
 			//get the light direction vector
-			float3 lightPos = (float3)(640,-1000,60);
-			float3 lightDirection = q - lightPos;
+			float3 lightPos = (float3)(640,1000,60);
+			float3 lightDirection = lightPos - q;
 			float3 normalVec = q - spherePos;
+			float4 lightAmbient = (float4)(
+				sphereData[(i*SPHERE_DATA_SIZE)+7],
+				sphereData[(i*SPHERE_DATA_SIZE)+8],
+				sphereData[(i*SPHERE_DATA_SIZE)+9],
+				1
+				);
+			float4 lightSpecular = (float4)(
+				sphereData[(i*SPHERE_DATA_SIZE)+10],
+            	sphereData[(i*SPHERE_DATA_SIZE)+11],
+            	sphereData[(i*SPHERE_DATA_SIZE)+12],
+            	1
+			);
+			float4 materialAmbient = (float4)(
+            	sphereData[(i*SPHERE_DATA_SIZE)+13],
+                sphereData[(i*SPHERE_DATA_SIZE)+14],
+                sphereData[(i*SPHERE_DATA_SIZE)+15],
+                1
+            );
+            float4 materialDiffuse = (float4)(
+				sphereData[(i*SPHERE_DATA_SIZE)+16],
+				sphereData[(i*SPHERE_DATA_SIZE)+17],
+				sphereData[(i*SPHERE_DATA_SIZE)+18],
+				1
+            );
+            float4 materialSpecular = (float4)(
+				sphereData[(i*SPHERE_DATA_SIZE)+19],
+				sphereData[(i*SPHERE_DATA_SIZE)+20],
+				sphereData[(i*SPHERE_DATA_SIZE)+21],
+				1
+			);
 			//return sphereColour;
-			return calculateLighting(sphereColour,normalVec,cameraPos,
-				lightDirection,(float4)(0.8,0.8,0.8,1.0),(float4)(0.9,0.9,0.9,1.0),//light //direction ambiant specular
-				(float4)(0.2,0.2,0.2,1.0),(float4)(0.8,0.8,0.8,1.0),(float4)(0.9,0.9,0.9,1.0),50);//material //ambient diffuse specular shininess
+			return calculateLighting(sphereColour,normalVec,q - cameraPos,
+				lightDirection,lightAmbient,lightSpecular,//light //direction ambiant specular
+				materialAmbient,materialDiffuse,materialSpecular,sphereData[(i*SPHERE_DATA_SIZE)+22]);//material //ambient diffuse specular shininess
 		}
 	}
 
