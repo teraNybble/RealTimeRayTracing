@@ -84,7 +84,7 @@ void Engine::addSphere(glm::vec3 pos, float r, glm::vec3 colour,
 	spheres.push_back(colour.r);	//R
 	spheres.push_back(colour.g);	//G
 	spheres.push_back(colour.b);	//B
-
+// Should be moved to light data stream
 	spheres.push_back(lightAmbiant.r);
 	spheres.push_back(lightAmbiant.g);
 	spheres.push_back(lightAmbiant.b);
@@ -92,7 +92,7 @@ void Engine::addSphere(glm::vec3 pos, float r, glm::vec3 colour,
 	spheres.push_back(lightSpecular.r);
 	spheres.push_back(lightSpecular.g);
 	spheres.push_back(lightSpecular.b);
-
+// END
 	spheres.push_back(materialAmbiant.r);
 	spheres.push_back(materialAmbiant.g);
 	spheres.push_back(materialAmbiant.b);

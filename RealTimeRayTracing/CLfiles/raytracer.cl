@@ -11,6 +11,18 @@ float3 reflect(float3 I, float3 N)
 	return (I - 2.0f * dot(N,I) * N);
 }
 
+float3 refract(float3 I, float3 N, float ior)
+{
+	float cosi = clamp(-1.0f,1.0f,(float)dot(I,N));
+	float etai = 1, etat = ior;
+	float3 n = N;
+	if(cosi < 0) { cosi = -cosi; } else { swap(etai, etat); n = -N; }
+	float eta = etai/etat;
+	float k = 1 - eta * eta * (1- cosi * cosi);
+
+	return k < 0 ? 0 : eta * I + (eta * cosi - sqrtf(k)) * n;
+}
+
 #define normalise(x) ({x/magnitude(x);})
 //!useful vector functions
 float4 calculateLighting(
@@ -70,6 +82,46 @@ int raySphereIntersect(float3 point, float3 direction,float* t, float3* q, float
 
 #define SPHERE_DATA_SIZE 23
 
+void dataStreamToFloats(__global float* sphereData, int i, float4* sphereColour, float4* lightAmbient, float4* lightSpecular, float4* materialAmbient, float4* materialDiffuse, float4* materialSpecular)
+{
+	*sphereColour = (float4)(
+		sphereData[(i*SPHERE_DATA_SIZE)+4],
+		sphereData[(i*SPHERE_DATA_SIZE)+5],
+		sphereData[(i*SPHERE_DATA_SIZE)+6],
+		1
+	);
+	*lightAmbient = (float4)(
+		sphereData[(i*SPHERE_DATA_SIZE)+7],
+		sphereData[(i*SPHERE_DATA_SIZE)+8],
+		sphereData[(i*SPHERE_DATA_SIZE)+9],
+		1
+		);
+	*lightSpecular = (float4)(
+		sphereData[(i*SPHERE_DATA_SIZE)+10],
+		sphereData[(i*SPHERE_DATA_SIZE)+11],
+		sphereData[(i*SPHERE_DATA_SIZE)+12],
+		1
+	);
+	*materialAmbient = (float4)(
+		sphereData[(i*SPHERE_DATA_SIZE)+13],
+		sphereData[(i*SPHERE_DATA_SIZE)+14],
+		sphereData[(i*SPHERE_DATA_SIZE)+15],
+		1
+	);
+	*materialDiffuse = (float4)(
+		sphereData[(i*SPHERE_DATA_SIZE)+16],
+		sphereData[(i*SPHERE_DATA_SIZE)+17],
+		sphereData[(i*SPHERE_DATA_SIZE)+18],
+		1
+	);
+	*materialSpecular = (float4)(
+		sphereData[(i*SPHERE_DATA_SIZE)+19],
+		sphereData[(i*SPHERE_DATA_SIZE)+20],
+		sphereData[(i*SPHERE_DATA_SIZE)+21],
+		1
+	);
+	}
+
 float4 calculatePixelColour(float3 cameraPos, float screenDist, __global float* sphereData, int numSpheres)
 {
 	float3 screenPos;
@@ -91,16 +143,18 @@ float4 calculatePixelColour(float3 cameraPos, float screenDist, __global float* 
 
 		//printf("sphere pos %4.0v3hlf\n", spherePos);
 		if(raySphereIntersect(cameraPos, direction, &t, &q, spherePos, sphereData[(i*SPHERE_DATA_SIZE)+3])){
+			/*
 			float4 sphereColour = (float4)(
 				sphereData[(i*SPHERE_DATA_SIZE)+4],
 				sphereData[(i*SPHERE_DATA_SIZE)+5],
 				sphereData[(i*SPHERE_DATA_SIZE)+6],
 				1
-			);
+			);*/
 			//get the light direction vector
 			float3 lightPos = (float3)(640,1000,60);
 			float3 lightDirection = lightPos - q;
 			float3 normalVec = q - spherePos;
+			/*
 			float4 lightAmbient = (float4)(
 				sphereData[(i*SPHERE_DATA_SIZE)+7],
 				sphereData[(i*SPHERE_DATA_SIZE)+8],
@@ -131,6 +185,9 @@ float4 calculatePixelColour(float3 cameraPos, float screenDist, __global float* 
 				sphereData[(i*SPHERE_DATA_SIZE)+21],
 				1
 			);
+			*/
+			float4 sphereColour,lightAmbient,lightSpecular,materialAmbient,materialDiffuse,materialSpecular;
+			dataStreamToFloats(sphereData, i,&sphereColour,&lightAmbient,&lightSpecular,&materialAmbient,&materialDiffuse,&materialSpecular);
 			//return sphereColour;
 			return calculateLighting(sphereColour,normalVec,q - cameraPos,
 				lightDirection,lightAmbient,lightSpecular,//light //direction ambiant specular
