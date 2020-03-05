@@ -1,5 +1,10 @@
 #define BACKGROUND_COLOUR (float4)(0,0,0,1)
 
+bool _combFloat4(float4 f4a,float4 f4b)
+{
+	return (f4a.w == f4b.w && f4a.x == f4b.x && f4a.y == f4b.y && f4a.z == f4b.z);
+}
+
 //useful vector functions
 float magnitude(float3 vec)
 {
@@ -136,59 +141,43 @@ float4 calculatePixelColour(float3 cameraPos, float screenDist, __global float* 
 	float3 q;
 	for(int i = 0; i < numSpheres; i++){
 		float3 spherePos = (float3)(
-			sphereData[(i*SPHERE_DATA_SIZE)+0],
-			sphereData[(i*SPHERE_DATA_SIZE)+1],
-			sphereData[(i*SPHERE_DATA_SIZE)+2]
-		);
-
+        	sphereData[(i*SPHERE_DATA_SIZE)+0],
+            sphereData[(i*SPHERE_DATA_SIZE)+1],
+            sphereData[(i*SPHERE_DATA_SIZE)+2]
+        );
 		//printf("sphere pos %4.0v3hlf\n", spherePos);
 		if(raySphereIntersect(cameraPos, direction, &t, &q, spherePos, sphereData[(i*SPHERE_DATA_SIZE)+3])){
-			/*
-			float4 sphereColour = (float4)(
-				sphereData[(i*SPHERE_DATA_SIZE)+4],
-				sphereData[(i*SPHERE_DATA_SIZE)+5],
-				sphereData[(i*SPHERE_DATA_SIZE)+6],
-				1
-			);*/
+            float4 sphereColour,lightAmbient,lightSpecular,materialAmbient,materialDiffuse,materialSpecular;
+            dataStreamToFloats(sphereData, i,&sphereColour,&lightAmbient,&lightSpecular,&materialAmbient,&materialDiffuse,&materialSpecular);
+
 			//get the light direction vector
 			float3 lightPos = (float3)(640,1000,60);
 			float3 lightDirection = lightPos - q;
 			float3 normalVec = q - spherePos;
-			/*
-			float4 lightAmbient = (float4)(
-				sphereData[(i*SPHERE_DATA_SIZE)+7],
-				sphereData[(i*SPHERE_DATA_SIZE)+8],
-				sphereData[(i*SPHERE_DATA_SIZE)+9],
-				1
-				);
-			float4 lightSpecular = (float4)(
-				sphereData[(i*SPHERE_DATA_SIZE)+10],
-            	sphereData[(i*SPHERE_DATA_SIZE)+11],
-            	sphereData[(i*SPHERE_DATA_SIZE)+12],
-            	1
-			);
-			float4 materialAmbient = (float4)(
-            	sphereData[(i*SPHERE_DATA_SIZE)+13],
-                sphereData[(i*SPHERE_DATA_SIZE)+14],
-                sphereData[(i*SPHERE_DATA_SIZE)+15],
-                1
-            );
-            float4 materialDiffuse = (float4)(
-				sphereData[(i*SPHERE_DATA_SIZE)+16],
-				sphereData[(i*SPHERE_DATA_SIZE)+17],
-				sphereData[(i*SPHERE_DATA_SIZE)+18],
-				1
-            );
-            float4 materialSpecular = (float4)(
-				sphereData[(i*SPHERE_DATA_SIZE)+19],
-				sphereData[(i*SPHERE_DATA_SIZE)+20],
-				sphereData[(i*SPHERE_DATA_SIZE)+21],
-				1
-			);
-			*/
-			float4 sphereColour,lightAmbient,lightSpecular,materialAmbient,materialDiffuse,materialSpecular;
-			dataStreamToFloats(sphereData, i,&sphereColour,&lightAmbient,&lightSpecular,&materialAmbient,&materialDiffuse,&materialSpecular);
+
 			//return sphereColour;
+
+			//using the red sphere as a reflective sphere
+			if(_combFloat4(sphereColour, (float4)(1,0,0,1))){
+				float3 reflectVec = reflect((q-cameraPos), normalVec);
+				for(int j = 0; j < numSpheres; j++){
+					float3 rSpherePos= (float3)(
+						sphereData[(j*SPHERE_DATA_SIZE)+0],
+						sphereData[(j*SPHERE_DATA_SIZE)+1],
+						sphereData[(j*SPHERE_DATA_SIZE)+2]
+					);
+                    float4 rSphereColour,rLightAmbient,rLightSpecular,rMaterialAmbient,rMaterialDiffuse,rMaterialSpecular;
+
+					float rt;
+                    float3 rq;
+
+					dataStreamToFloats(sphereData, j,&rSphereColour,&rLightAmbient,&rLightSpecular,&rMaterialAmbient,&rMaterialDiffuse,&rMaterialSpecular);
+					if(raySphereIntersect(q, reflectVec, &rt, &rq, spherePos, sphereData[(j*SPHERE_DATA_SIZE)+3])){
+						sphereColour = rSphereColour;
+					}
+				}
+			}
+
 			return calculateLighting(sphereColour,normalVec,q - cameraPos,
 				lightDirection,lightAmbient,lightSpecular,//light //direction ambiant specular
 				materialAmbient,materialDiffuse,materialSpecular,sphereData[(i*SPHERE_DATA_SIZE)+22]);//material //ambient diffuse specular shininess
