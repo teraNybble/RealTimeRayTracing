@@ -62,11 +62,20 @@ void Engine::createSpheres()
 	numSpheres = 1;
 */
 	numSpheres = 0;
-
+/*
 	addSphere(glm::vec3(640,360,15),1,glm::vec3(1,0,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
 	addSphere(glm::vec3(650,360,30),5,glm::vec3(0,1,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
 	addSphere(glm::vec3(610,345,50),7,glm::vec3(0,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
 	addSphere(glm::vec3(660,375,50),7,glm::vec3(1,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
+*/
+
+	addSphere(glm::vec3(650,360,15), 1,glm::vec3(1,0,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
+	addSphere(glm::vec3(650,360,30), 5,glm::vec3(0,1,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
+	addSphere(glm::vec3(650,360,45),10,glm::vec3(0,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
+
+	addSphere(glm::vec3(630,360,45),10,glm::vec3(0,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
+	addSphere(glm::vec3(630,360,30), 5,glm::vec3(0,1,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
+	addSphere(glm::vec3(630,360,15), 1,glm::vec3(1,0,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
 
 	spheres.shrink_to_fit();
 }

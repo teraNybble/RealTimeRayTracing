@@ -125,7 +125,37 @@ void dataStreamToFloats(__global float* sphereData, int i, float4* sphereColour,
 		sphereData[(i*SPHERE_DATA_SIZE)+21],
 		1
 	);
+}
+
+float4 reflectColour(float3 intersectPoint, float3 cameraPos, float3 normalVec, float3 spherePos, int sphereId,
+	__global float* sphereData, int numSpheres)
+{
+	float3 reflectVec = reflect((intersectPoint-cameraPos), normalVec);
+	for(int j = 0; j < numSpheres; j++){
+		if(j == sphereId) continue; // no point reflecting the sphere with its self
+		float3 rSpherePos= (float3)(
+			sphereData[(j*SPHERE_DATA_SIZE)+0],
+			sphereData[(j*SPHERE_DATA_SIZE)+1],
+			sphereData[(j*SPHERE_DATA_SIZE)+2]
+		);
+		float4 rSphereColour,rLightAmbient,rLightSpecular,rMaterialAmbient,rMaterialDiffuse,rMaterialSpecular;
+
+		float rt;
+		float3 rq;
+
+		dataStreamToFloats(sphereData, j,&rSphereColour,&rLightAmbient,&rLightSpecular,&rMaterialAmbient,&rMaterialDiffuse,&rMaterialSpecular);
+		if(raySphereIntersect(intersectPoint, reflectVec, &rt, &rq, spherePos, sphereData[(j*SPHERE_DATA_SIZE)+3])){
+			return rSphereColour;
+		}
 	}
+
+	return (float4)(
+			sphereData[(sphereId*SPHERE_DATA_SIZE)+4],
+			sphereData[(sphereId*SPHERE_DATA_SIZE)+5],
+			sphereData[(sphereId*SPHERE_DATA_SIZE)+6],
+			1
+		);
+}
 
 float4 calculatePixelColour(float3 cameraPos, float screenDist, __global float* sphereData, int numSpheres)
 {
@@ -137,54 +167,61 @@ float4 calculatePixelColour(float3 cameraPos, float screenDist, __global float* 
 	//screenPos.z = 650;//hard coding the screen distance
 	float3 direction = screenPos - cameraPos;
 	direction = (direction)/magnitude(direction);
-	float t;
-	float3 q;
+
+
+	int closestSphere = -1;
+	float3 closestIntesect;
+
 	for(int i = 0; i < numSpheres; i++){
+		float t;
+		float3 q;
+
 		float3 spherePos = (float3)(
-        	sphereData[(i*SPHERE_DATA_SIZE)+0],
-            sphereData[(i*SPHERE_DATA_SIZE)+1],
-            sphereData[(i*SPHERE_DATA_SIZE)+2]
-        );
+			sphereData[(i*SPHERE_DATA_SIZE)+0],
+			sphereData[(i*SPHERE_DATA_SIZE)+1],
+			sphereData[(i*SPHERE_DATA_SIZE)+2]
+		);
 		//printf("sphere pos %4.0v3hlf\n", spherePos);
 		if(raySphereIntersect(cameraPos, direction, &t, &q, spherePos, sphereData[(i*SPHERE_DATA_SIZE)+3])){
-            float4 sphereColour,lightAmbient,lightSpecular,materialAmbient,materialDiffuse,materialSpecular;
-            dataStreamToFloats(sphereData, i,&sphereColour,&lightAmbient,&lightSpecular,&materialAmbient,&materialDiffuse,&materialSpecular);
-
-			//get the light direction vector
-			float3 lightPos = (float3)(640,1000,60);
-			float3 lightDirection = lightPos - q;
-			float3 normalVec = q - spherePos;
-
-			//return sphereColour;
-
-			//using the red sphere as a reflective sphere
-			if(_combFloat4(sphereColour, (float4)(1,0,0,1))){
-				float3 reflectVec = reflect((q-cameraPos), normalVec);
-				for(int j = 0; j < numSpheres; j++){
-					float3 rSpherePos= (float3)(
-						sphereData[(j*SPHERE_DATA_SIZE)+0],
-						sphereData[(j*SPHERE_DATA_SIZE)+1],
-						sphereData[(j*SPHERE_DATA_SIZE)+2]
-					);
-                    float4 rSphereColour,rLightAmbient,rLightSpecular,rMaterialAmbient,rMaterialDiffuse,rMaterialSpecular;
-
-					float rt;
-                    float3 rq;
-
-					dataStreamToFloats(sphereData, j,&rSphereColour,&rLightAmbient,&rLightSpecular,&rMaterialAmbient,&rMaterialDiffuse,&rMaterialSpecular);
-					if(raySphereIntersect(q, reflectVec, &rt, &rq, spherePos, sphereData[(j*SPHERE_DATA_SIZE)+3])){
-						sphereColour = rSphereColour;
-					}
+			if(closestSphere != -1){
+				if(q.z < closestIntesect.z){
+					closestSphere = i;
+					closestIntesect = q;
 				}
+			}else{
+				closestSphere = i;
+				closestIntesect = q;
 			}
-
-			return calculateLighting(sphereColour,normalVec,q - cameraPos,
-				lightDirection,lightAmbient,lightSpecular,//light //direction ambiant specular
-				materialAmbient,materialDiffuse,materialSpecular,sphereData[(i*SPHERE_DATA_SIZE)+22]);//material //ambient diffuse specular shininess
 		}
 	}
 
 
+	if(closestSphere != -1){
+		float3 spherePos = (float3)(
+			sphereData[(closestSphere*SPHERE_DATA_SIZE)+0],
+			sphereData[(closestSphere*SPHERE_DATA_SIZE)+1],
+			sphereData[(closestSphere*SPHERE_DATA_SIZE)+2]
+		);
+		//get all the sphere data
+		float4 sphereColour,lightAmbient,lightSpecular,materialAmbient,materialDiffuse,materialSpecular;
+			dataStreamToFloats(sphereData, closestSphere,&sphereColour,&lightAmbient,&lightSpecular,&materialAmbient,&materialDiffuse,&materialSpecular);
+
+		//get the light direction vector
+		float3 lightPos = (float3)(640,1000,60);
+		float3 lightDirection = lightPos - closestIntesect;
+		float3 normalVec = closestIntesect - spherePos;
+
+		//using the red sphere as a reflective sphere
+		/*
+		if(_combFloat4(sphereColour, (float4)(1,0,0,1))){
+			sphereColour = reflectColour(closestIntesect, cameraPos, normalVec, spherePos, closestSphere, sphereData, numSpheres);
+		}
+		*/
+
+		return calculateLighting(sphereColour,normalVec,closestIntesect - cameraPos,
+			lightDirection,lightAmbient,lightSpecular,//light //direction ambiant specular
+			materialAmbient,materialDiffuse,materialSpecular,sphereData[(closestSphere*SPHERE_DATA_SIZE)+22]);//material //ambient diffuse specular shininess
+	}
 
 	return BACKGROUND_COLOUR;
 }
