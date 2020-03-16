@@ -66,6 +66,8 @@ private:
 	static std::vector<float> spheres;
 	static int numSpheres;
 
+	glm::vec3 spherePos;
+
 	static float calculateFOV(glm::vec2 a, glm::vec2 b, glm::vec2 c);
 	static float calculateDist(float fov);
 

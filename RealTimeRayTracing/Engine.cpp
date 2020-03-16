@@ -209,6 +209,11 @@ void Engine::init()
 	keyMap.insert(std::pair<int,bool>(GLFW_KEY_KP_2,false));
 	keyMap.insert(std::pair<int,bool>(GLFW_KEY_KP_3,false));
 
+	keyMap.insert(std::pair<int,bool>(GLFW_KEY_A, false));
+	keyMap.insert(std::pair<int,bool>(GLFW_KEY_D, false));
+	keyMap.insert(std::pair<int,bool>(GLFW_KEY_W, false));
+	keyMap.insert(std::pair<int,bool>(GLFW_KEY_S, false));
+
 	glEnable(GL_DEPTH_TEST);
 
 	createSpheres();
@@ -376,33 +381,26 @@ void Engine::processEvents()
 {
 	glfwPollEvents();
 
-	if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-	{
-		z-=0.5f;
+	if (keyMap.at(GLFW_KEY_A)) {
+		//move a sphere left
+		spherePos.x += 0.1f;
 	}
-	if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-	{
-		z+=0.5f;
+	if (keyMap.at(GLFW_KEY_D)) {
+		//move a sphere right
+		spherePos.x -= 0.1f;
 	}
-
-	if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-	{
-		x-=0.5f;
+	if (keyMap.at(GLFW_KEY_W)) {
+		//move a sphere forward
+		spherePos.z += 0.1f;
 	}
-	if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-	{
-		x+=0.5f;
-	}
-
-	if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-	{
-		y+=0.5f;
-	}
-	if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-	{
-		y-=0.5f;
+	if (keyMap.at(GLFW_KEY_S)) {
+		//move a sphere back
+		spherePos.z -= 0.1f;
 	}
 
+	spheres.at((1 * 23) + 0) = spherePos.x;
+	spheres.at((1 * 23) + 1) = spherePos.y;
+	spheres.at((1 * 23) + 2) = spherePos.z;
 }
 
 int Engine::mainLoop()
