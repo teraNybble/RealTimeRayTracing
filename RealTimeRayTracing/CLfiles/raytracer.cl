@@ -78,8 +78,15 @@ int raySphereIntersect(float3 point, float3 direction,float* t, float3* q, float
 		return 0;
 
 	*t = -b - sqrt(discr);
+	float tmax = -b + sqrt(discr);
 
-	if(*t < 0.0f) *t = 0.0f;
+	if (tmax < *t && tmax > 0.0)
+		*t = tmax;
+
+	//if(*t < 0.0f) *t = 0.0f;
+	if (*t < 0.0f)
+		return 0;
+
 	*q = point + *t * direction;
 
 	return 1;
@@ -131,6 +138,9 @@ float4 reflectColour(float3 intersectPoint, float3 cameraPos, float3 normalVec, 
 	__global float* sphereData, int numSpheres)
 {
 	float3 reflectVec = reflect((intersectPoint-cameraPos), normalVec);
+	int closestSphere = -1;
+    float3 closestIntesect;
+
 	for(int j = 0; j < numSpheres; j++){
 		if(j == sphereId) continue; // no point reflecting the sphere with its self
 		float3 rSpherePos= (float3)(
@@ -145,10 +155,26 @@ float4 reflectColour(float3 intersectPoint, float3 cameraPos, float3 normalVec, 
 
 		dataStreamToFloats(sphereData, j,&rSphereColour,&rLightAmbient,&rLightSpecular,&rMaterialAmbient,&rMaterialDiffuse,&rMaterialSpecular);
 		if(raySphereIntersect(intersectPoint, reflectVec, &rt, &rq, spherePos, sphereData[(j*SPHERE_DATA_SIZE)+3])){
-			return rSphereColour;
+			if(closestSphere != -1){
+				if(rq.z < closestIntesect.z){
+					closestSphere = j;
+					closestIntesect = rq;
+				}
+			}else{
+				closestSphere = j;
+				closestIntesect = rq;
+			}
 		}
 	}
 
+	if(closestSphere != -1){
+		return (float4)(
+    		sphereData[(closestSphere*SPHERE_DATA_SIZE)+4],
+    		sphereData[(closestSphere*SPHERE_DATA_SIZE)+5],
+    		sphereData[(closestSphere*SPHERE_DATA_SIZE)+6],
+    		1
+    	);
+	}
 	return (float4)(
 			sphereData[(sphereId*SPHERE_DATA_SIZE)+4],
 			sphereData[(sphereId*SPHERE_DATA_SIZE)+5],
@@ -212,11 +238,11 @@ float4 calculatePixelColour(float3 cameraPos, float screenDist, __global float* 
 		float3 normalVec = closestIntesect - spherePos;
 
 		//using the red sphere as a reflective sphere
-		/*
+
 		if(_combFloat4(sphereColour, (float4)(1,0,0,1))){
 			sphereColour = reflectColour(closestIntesect, cameraPos, normalVec, spherePos, closestSphere, sphereData, numSpheres);
 		}
-		*/
+
 
 		return calculateLighting(sphereColour,normalVec,closestIntesect - cameraPos,
 			lightDirection,lightAmbient,lightSpecular,//light //direction ambiant specular
