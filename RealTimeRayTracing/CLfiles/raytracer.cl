@@ -61,7 +61,6 @@ float4 calculateLighting(
 	return colour * inColour;
 }
 
-//https://gamedev.stackexchange.com/questions/96459/fast-ray-sphere-collision-code
 int raySphereIntersect(float3 point, float3 direction,float* t, float3* q, float3 spherePos, float sphereRadius)
 {
 	//float3 spherePos = (float3)(640,360,15);//640,360,15
@@ -135,51 +134,13 @@ void dataStreamToFloats(__global float* sphereData, int i, float4* sphereColour,
 	);
 }
 
-void findClosestSphere(__global float* sphereData, int numSpheres, float3 startPos, float3 direction, int* closestSphere,float3* closestIntesect, float* closestT, int skipID)
-{
-	*closestSphere = -1;
-	//float3 closestIntesect;
-	//float closestT;
-
-	for(int i = 0; i < numSpheres; i++){
-		float t;
-		float3 q;
-
-		float3 spherePos = (float3)(
-			sphereData[(i*SPHERE_DATA_SIZE)+0],
-			sphereData[(i*SPHERE_DATA_SIZE)+1],
-			sphereData[(i*SPHERE_DATA_SIZE)+2]
-		);
-		//printf("sphere pos %4.0v3hlf\n", spherePos);
-		if(raySphereIntersect(startPos, direction, &t, &q, spherePos, sphereData[(i*SPHERE_DATA_SIZE)+3])){
-			if(i = skipID) continue;
-			if(*closestSphere != -1){
-				//need to switch to t value
-				//if(q.z < closestIntesect->z){
-				if(t < *closestT){
-					*closestSphere = i;
-					*closestIntesect = q;
-					*closestT = t;
-				}
-			}else{
-				*closestSphere = i;
-				*closestIntesect = q;
-				//printf("old t %d new t %d\n", closestT, t);
-				//printf(" new t %d\n", t);
-				*closestT = t;
-			}
-		}
-	}
-}
-
 float4 reflectColour(float3 intersectPoint, float3 cameraPos, float3 normalVec, float3 spherePos, int sphereId,
 	__global float* sphereData, int numSpheres)
 {
-	float3 reflectVec = reflect((intersectPoint-cameraPos), normalise(normalVec));
+	float3 reflectVec = reflect((intersectPoint-cameraPos), normalVec);
 	int closestSphere = -1;
     float3 closestIntesect;
-    float closestT;
-/*
+
 	for(int j = 0; j < numSpheres; j++){
 		if(j == sphereId) continue; // no point reflecting the sphere with its self
 		float3 rSpherePos= (float3)(
@@ -205,10 +166,7 @@ float4 reflectColour(float3 intersectPoint, float3 cameraPos, float3 normalVec, 
 			}
 		}
 	}
-*/
-	//printf("finding closest sphere\n");
-	findClosestSphere(sphereData, numSpheres, spherePos, reflectVec, &closestSphere, &closestIntesect, &closestT, sphereId);
-	//printf("found closest sphere\n");
+
 	if(closestSphere != -1){
 		return (float4)(
     		sphereData[(closestSphere*SPHERE_DATA_SIZE)+4],
@@ -239,8 +197,7 @@ float4 calculatePixelColour(float3 cameraPos, float screenDist, __global float* 
 
 	int closestSphere = -1;
 	float3 closestIntesect;
-	float closestT;
-/*
+
 	for(int i = 0; i < numSpheres; i++){
 		float t;
 		float3 q;
@@ -256,22 +213,16 @@ float4 calculatePixelColour(float3 cameraPos, float screenDist, __global float* 
 				if(q.z < closestIntesect.z){
 					closestSphere = i;
 					closestIntesect = q;
-					closestT = t;
 				}
 			}else{
 				closestSphere = i;
 				closestIntesect = q;
-				printf("old t %d new t %d\n", closestT, t);
-				//printf(" new t %d\n", t);
-				closestT = t;
 			}
 		}
 	}
-*/
-	findClosestSphere(sphereData, numSpheres, cameraPos, direction, &closestSphere, &closestIntesect, &closestT, -1);
+
 
 	if(closestSphere != -1){
-		//printf("clostest t %d\n", closestT);
 		float3 spherePos = (float3)(
 			sphereData[(closestSphere*SPHERE_DATA_SIZE)+0],
 			sphereData[(closestSphere*SPHERE_DATA_SIZE)+1],
@@ -288,7 +239,7 @@ float4 calculatePixelColour(float3 cameraPos, float screenDist, __global float* 
 
 		//using the red sphere as a reflective sphere
 
-		if(_combFloat4(sphereColour, (float4)(0,1,0,1))){
+		if(_combFloat4(sphereColour, (float4)(1,0,0,1))){
 			sphereColour = reflectColour(closestIntesect, cameraPos, normalVec, spherePos, closestSphere, sphereData, numSpheres);
 		}
 

@@ -187,8 +187,6 @@ void Engine::display()
 	//give the memory back to openGL
 	queue.enqueueReleaseGLObjects(&images,NULL);
 
-	std::cout << "drawn a frame" << std::endl;
-
 	glUseProgram(0); //turn off the current shader
 }
 
