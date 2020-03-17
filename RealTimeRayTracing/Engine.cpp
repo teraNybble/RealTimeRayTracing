@@ -162,6 +162,8 @@ void Engine::display()
 
 	myCube.render(texID);
 
+	raytracer.createBuffer(CL_MEM_READ_ONLY | CL_MEM_HOST_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float)*spheres.size(), spheres.data());
+
 	raytracer.setKernelArgs(0, screen);
 	//raytracer.setKernelArgs(1,outColour);
 	cl_float3 camPos;
@@ -184,6 +186,8 @@ void Engine::display()
 	queue.enqueueNDRangeKernel(raytracer.getKernel(),0,screenRange);
 	//give the memory back to openGL
 	queue.enqueueReleaseGLObjects(&images,NULL);
+
+	std::cout << "drawn a frame" << std::endl;
 
 	glUseProgram(0); //turn off the current shader
 }
@@ -213,6 +217,8 @@ void Engine::init()
 	keyMap.insert(std::pair<int,bool>(GLFW_KEY_D, false));
 	keyMap.insert(std::pair<int,bool>(GLFW_KEY_W, false));
 	keyMap.insert(std::pair<int,bool>(GLFW_KEY_S, false));
+	keyMap.insert(std::pair<int,bool>(GLFW_KEY_LEFT_SHIFT, false));
+	keyMap.insert(std::pair<int,bool>(GLFW_KEY_SPACE, false));
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -221,6 +227,8 @@ void Engine::init()
 	createScreenImage();
 	raytracer.createBuffer(CL_MEM_READ_ONLY | CL_MEM_HOST_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float)*spheres.size(), spheres.data());
 	screenDist = calculateDist(90);
+
+	spherePos = glm::vec3(650,360,30);
 
 	std::cout << "screenDist\t" << screenDist << "\n";
 
@@ -383,11 +391,11 @@ void Engine::processEvents()
 
 	if (keyMap.at(GLFW_KEY_A)) {
 		//move a sphere left
-		spherePos.x += 0.1f;
+		spherePos.x -= 0.1f;
 	}
 	if (keyMap.at(GLFW_KEY_D)) {
 		//move a sphere right
-		spherePos.x -= 0.1f;
+		spherePos.x += 0.1f;
 	}
 	if (keyMap.at(GLFW_KEY_W)) {
 		//move a sphere forward
@@ -397,10 +405,19 @@ void Engine::processEvents()
 		//move a sphere back
 		spherePos.z -= 0.1f;
 	}
+	if (keyMap.at(GLFW_KEY_LEFT_SHIFT)){
+		//move a sphere down
+		spherePos.y -= 0.1f;
+	}
+	if (keyMap.at(GLFW_KEY_SPACE)){
+		//move a sphere down
+		spherePos.y += 0.1f;
+	}
 
 	spheres.at((1 * 23) + 0) = spherePos.x;
 	spheres.at((1 * 23) + 1) = spherePos.y;
 	spheres.at((1 * 23) + 2) = spherePos.z;
+	//std::cout << spheres.at((1 * 23) + 0) << ", " << spheres.at((1 * 23) + 1) << ", " << spheres.at((1 * 23) + 2) << "\n";
 }
 
 int Engine::mainLoop()

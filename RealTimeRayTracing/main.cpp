@@ -46,7 +46,7 @@ int main()
 	cl::Kernel kernel(program, "getXY");
 
 	kernel.setArg(0, memBuf);
-*/
+*//*
 	char buf[13];//16*9*4
 	CLWrapper clthing;
 	clthing.init("CLfiles/helloWorld.cl");
@@ -66,7 +66,7 @@ int main()
 	//cl_float3 test;
 
 	std::cout << buf;
-
+*/
 	//  return 69;
 
 	Engine engine;
