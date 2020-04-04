@@ -93,7 +93,7 @@ int raySphereIntersect(float3 point, float3 direction,float* t, float3* q, float
 	return 1;
 }
 
-#define SPHERE_DATA_SIZE 23
+#define SPHERE_DATA_SIZE 17
 
 void dataStreamToFloats(__global float* sphereData, int i, float4* sphereColour, float4* lightAmbient, float4* lightSpecular, float4* materialAmbient, float4* materialDiffuse, float4* materialSpecular)
 {
@@ -102,7 +102,7 @@ void dataStreamToFloats(__global float* sphereData, int i, float4* sphereColour,
 		sphereData[(i*SPHERE_DATA_SIZE)+5],
 		sphereData[(i*SPHERE_DATA_SIZE)+6],
 		1
-	);
+	);/*
 	*lightAmbient = (float4)(
 		sphereData[(i*SPHERE_DATA_SIZE)+7],
 		sphereData[(i*SPHERE_DATA_SIZE)+8],
@@ -114,23 +114,23 @@ void dataStreamToFloats(__global float* sphereData, int i, float4* sphereColour,
 		sphereData[(i*SPHERE_DATA_SIZE)+11],
 		sphereData[(i*SPHERE_DATA_SIZE)+12],
 		1
-	);
+	);*/
 	*materialAmbient = (float4)(
-		sphereData[(i*SPHERE_DATA_SIZE)+13],
-		sphereData[(i*SPHERE_DATA_SIZE)+14],
-		sphereData[(i*SPHERE_DATA_SIZE)+15],
+		sphereData[(i*SPHERE_DATA_SIZE)+7],
+		sphereData[(i*SPHERE_DATA_SIZE)+8],
+		sphereData[(i*SPHERE_DATA_SIZE)+9],
 		1
 	);
 	*materialDiffuse = (float4)(
-		sphereData[(i*SPHERE_DATA_SIZE)+16],
-		sphereData[(i*SPHERE_DATA_SIZE)+17],
-		sphereData[(i*SPHERE_DATA_SIZE)+18],
+		sphereData[(i*SPHERE_DATA_SIZE)+10],
+		sphereData[(i*SPHERE_DATA_SIZE)+11],
+		sphereData[(i*SPHERE_DATA_SIZE)+12],
 		1
 	);
 	*materialSpecular = (float4)(
-		sphereData[(i*SPHERE_DATA_SIZE)+19],
-		sphereData[(i*SPHERE_DATA_SIZE)+20],
-		sphereData[(i*SPHERE_DATA_SIZE)+21],
+		sphereData[(i*SPHERE_DATA_SIZE)+13],
+		sphereData[(i*SPHERE_DATA_SIZE)+14],
+		sphereData[(i*SPHERE_DATA_SIZE)+15],
 		1
 	);
 }
@@ -221,7 +221,7 @@ float4 reflectColour(float3 intersectPoint, float3 cameraPos, float3 normalVec, 
 		);
 }
 
-float4 calculatePixelColour(float3 cameraPos, float screenDist, __global float* sphereData, int numSpheres)
+float4 calculatePixelColour(float3 cameraPos, float screenDist, __global float* sphereData, int numSpheres, __global float* lighting)
 {
 	float3 screenPos;
 	//ray code goes here
@@ -270,6 +270,11 @@ float4 calculatePixelColour(float3 cameraPos, float screenDist, __global float* 
 		float4 sphereColour,lightAmbient,lightSpecular,materialAmbient,materialDiffuse,materialSpecular;
 			dataStreamToFloats(sphereData, closestSphere,&sphereColour,&lightAmbient,&lightSpecular,&materialAmbient,&materialDiffuse,&materialSpecular);
 
+		lightAmbient = (float4)(
+			lighting[0],lighting[1],lighting[2],1);
+		lightSpecular = (float4)(
+			lighting[3],lighting[4],lighting[5],1);
+
 		//get the light direction vector
 		float3 lightPos = (float3)(640,1000,60);
 		float3 lightDirection = lightPos - closestIntesect;
@@ -284,17 +289,18 @@ float4 calculatePixelColour(float3 cameraPos, float screenDist, __global float* 
 
 		return calculateLighting(sphereColour,normalVec,closestIntesect - cameraPos,
 			lightDirection,lightAmbient,lightSpecular,//light //direction ambiant specular
-			materialAmbient,materialDiffuse,materialSpecular,sphereData[(closestSphere*SPHERE_DATA_SIZE)+22]);//material //ambient diffuse specular shininess
+			materialAmbient,materialDiffuse,materialSpecular,sphereData[(closestSphere*SPHERE_DATA_SIZE)+16]);//material //ambient diffuse specular shininess
 	}
 
 	return BACKGROUND_COLOUR;
 }
 
-__kernel void raytracer(__write_only image2d_t image, float3 cameraPos, float screenDist, __global float* sphereData, int numSpheres)
+__kernel void raytracer(__write_only image2d_t image, float3 cameraPos, float screenDist, __global float* sphereData, int numSpheres, __global float* lighting)
 {
 	int2 pos = (int2)(get_global_id(0),get_global_id(1));
 	//float4 colour = (float4)(inColour,1);
 	//printf("numSpheres %d\n", numSpheres);
-	float4 colour = calculatePixelColour(cameraPos, screenDist, sphereData, numSpheres);
+	//printf("sphere pos %d,%d,%d\n", sphereData[0],sphereData[1],sphereData[2]);
+	float4 colour = calculatePixelColour(cameraPos, screenDist, sphereData, numSpheres, lighting);
 	write_imagef(image,pos,colour);
 }

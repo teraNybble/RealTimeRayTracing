@@ -10,7 +10,7 @@ private:
 	cl::Context context;
 	cl::Device  device;
 
-	cl::Buffer  memBuff;
+	std::vector<cl::Buffer> memBuff;
 	cl::Kernel  kernel;
 
 	cl::Program createProgram(const std::string& file, cl_context_properties* properties = NULL);
@@ -20,7 +20,7 @@ public:
 	void init(std::string path, cl_context_properties* properties = NULL);
 
 	inline void createBuffer(cl_mem_flags flags, ::size_t size,void* host_ptr = NULL, cl_int* err = NULL)	{
-		memBuff = cl::Buffer(context,flags,size,host_ptr,err);
+		memBuff.push_back(cl::Buffer(context,flags,size,host_ptr,err));
 	}
 
 	inline void createKernel(std::string name, cl_int* err = NULL){
@@ -35,7 +35,7 @@ public:
 	inline const cl::Program& getProgram() const { return program; }
 	inline const cl::Context& getContext() const { return context; }
 	inline const cl::Device&  getDevice()  const { return device;  }
-	inline const cl::Buffer&  getBuffer()  const { return memBuff; }
+	inline const cl::Buffer&  getBuffer(unsigned int i = 0)  const { return memBuff[i]; }
 	inline const cl::Kernel&  getKernel()  const { return kernel;  }
 };
 

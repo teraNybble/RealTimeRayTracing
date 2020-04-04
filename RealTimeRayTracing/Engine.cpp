@@ -94,13 +94,14 @@ void Engine::addSphere(glm::vec3 pos, float r, glm::vec3 colour,
 	spheres.push_back(colour.g);	//G
 	spheres.push_back(colour.b);	//B
 // Should be moved to light data stream
+/*
 	spheres.push_back(lightAmbiant.r);
 	spheres.push_back(lightAmbiant.g);
 	spheres.push_back(lightAmbiant.b);
 
 	spheres.push_back(lightSpecular.r);
 	spheres.push_back(lightSpecular.g);
-	spheres.push_back(lightSpecular.b);
+	spheres.push_back(lightSpecular.b);*/
 // END
 	spheres.push_back(materialAmbiant.r);
 	spheres.push_back(materialAmbiant.g);
@@ -164,6 +165,10 @@ void Engine::display()
 
 	raytracer.createBuffer(CL_MEM_READ_ONLY | CL_MEM_HOST_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float)*spheres.size(), spheres.data());
 
+	float lighting[6] = { 0.8,0.8,0.8,0.9,0.9,0.9 };
+	raytracer.createBuffer(CL_MEM_READ_ONLY | CL_MEM_HOST_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * 6, &lighting[0]);
+
+
 	raytracer.setKernelArgs(0, screen);
 	//raytracer.setKernelArgs(1,outColour);
 	cl_float3 camPos;
@@ -172,8 +177,9 @@ void Engine::display()
 	camPos.z = 0;
 	raytracer.setKernelArgs(1,camPos);
 	raytracer.setKernelArgs(2, screenDist);
-	raytracer.setKernelArgs(3, raytracer.getBuffer());
+	raytracer.setKernelArgs(3, raytracer.getBuffer(0));
 	raytracer.setKernelArgs(4, numSpheres);
+	raytracer.setKernelArgs(5, raytracer.getBuffer(1));
 
 	screenRange = cl::NDRange(screenWidth,screenHeight);
 
@@ -224,6 +230,10 @@ void Engine::init()
 
 	createScreenImage();
 	raytracer.createBuffer(CL_MEM_READ_ONLY | CL_MEM_HOST_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float)*spheres.size(), spheres.data());
+
+	float lighting[6] = { 0.8,0.8,0.8,0.9,0.9,0.9 };
+	raytracer.createBuffer(CL_MEM_READ_ONLY | CL_MEM_HOST_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * 6, lighting);
+
 	screenDist = calculateDist(90);
 
 	spherePos = glm::vec3(650,360,30);
