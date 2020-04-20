@@ -42,7 +42,9 @@ float Engine::calculateFOV(glm::vec2 a, glm::vec2 b, glm::vec2 c)
 float Engine::calculateDist(float fov)
 {
 	//tan is in radians so I need to convert from degrees
-	return tan((180-(fov/2.0f)-90)*PI/180)*(screenWidth/2.0f);
+	//return tan((180-(fov/2.0f)-90)*PI/180)*(screenWidth/2.0f);
+	float returnVal = (screenWidth / 2.0f) / tan(fov/2.0 * PI / 180.0f);
+	return returnVal;
 	//return tan(180-(fov/2.0f)-90)*screenWidth;
 }
 
@@ -69,13 +71,13 @@ void Engine::createSpheres()
 	addSphere(glm::vec3(660,375,50),7,glm::vec3(1,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
 */
 
-	addSphere(glm::vec3(650,360,15), 1,glm::vec3(1,0,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
-	addSphere(glm::vec3(650,360,30), 5,glm::vec3(0,1,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
-	addSphere(glm::vec3(650,360,45),10,glm::vec3(0,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
+	addSphere(glm::vec3(655,360,65), 1,glm::vec3(1,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
+	addSphere(glm::vec3(655,360,80), 5,glm::vec3(0,1,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
+	addSphere(glm::vec3(655,360,95),10,glm::vec3(0,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
 
-	addSphere(glm::vec3(630,360,45),10,glm::vec3(0,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
-	addSphere(glm::vec3(630,360,30), 5,glm::vec3(0,1,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
-	addSphere(glm::vec3(630,360,15), 1,glm::vec3(1,0,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
+	addSphere(glm::vec3(625,360,95),10,glm::vec3(0,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
+	addSphere(glm::vec3(625,360,80), 5,glm::vec3(0,1,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
+	addSphere(glm::vec3(625,360,65), 1,glm::vec3(1,1,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
 
 	spheres.shrink_to_fit();
 }
@@ -163,6 +165,8 @@ void Engine::display()
 
 	myCube.render(texID);
 
+	raytracer.clearBuffers();
+	//std::cout << spheres.at((1 * 17) + 0) << ", " << spheres.at((1 * 17) + 1) << ", " << spheres.at((1 * 17) + 2) << "\n";
 	raytracer.createBuffer(CL_MEM_READ_ONLY | CL_MEM_HOST_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float)*spheres.size(), spheres.data());
 
 	float lighting[6] = { 0.8,0.8,0.8,0.9,0.9,0.9 };
@@ -234,13 +238,18 @@ void Engine::init()
 	float lighting[6] = { 0.8,0.8,0.8,0.9,0.9,0.9 };
 	raytracer.createBuffer(CL_MEM_READ_ONLY | CL_MEM_HOST_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * 6, lighting);
 
-	screenDist = calculateDist(90);
+	screenDist = calculateDist(60);
 
-	spherePos = glm::vec3(650,360,30);
+	spherePos = glm::vec3(650,360,80);
 
 	std::cout << "screenDist\t" << screenDist << "\n";
 
-	std::cout << "FOV:\t" << calculateFOV(glm::vec2(640,0),glm::vec2(0,screenDist),glm::vec2(1280,screenDist)) << "\u00B0\n";
+	std::cout << "FOV:\t" << calculateFOV(glm::vec2(640, 0), glm::vec2(0, screenDist), glm::vec2(1280, screenDist));
+#if _WIN32
+	std::cout << (char)167 << "\n";
+#else
+	std::cout << "\u00B0\n";
+#endif // _WIN32
 }
 
 void Engine::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -397,8 +406,11 @@ void Engine::processEvents()
 {
 	glfwPollEvents();
 
+	//std::cout << spherePos.x << "," << spherePos.y << "," << spherePos.z << "\n";
+
 	if (keyMap.at(GLFW_KEY_A)) {
 		//move a sphere left
+		//std::cout << "moving sphere\n";
 		spherePos.x -= 0.1f;
 	}
 	if (keyMap.at(GLFW_KEY_D)) {
@@ -422,10 +434,12 @@ void Engine::processEvents()
 		spherePos.y += 0.1f;
 	}
 
-	spheres.at((1 * 23) + 0) = spherePos.x;
-	spheres.at((1 * 23) + 1) = spherePos.y;
-	spheres.at((1 * 23) + 2) = spherePos.z;
-	//std::cout << spheres.at((1 * 23) + 0) << ", " << spheres.at((1 * 23) + 1) << ", " << spheres.at((1 * 23) + 2) << "\n";
+	//std::cout << spherePos.x << "," << spherePos.y << "," << spherePos.z << "\n";
+
+	spheres.at((1 * 17) + 0) = spherePos.x;
+	spheres.at((1 * 17) + 1) = spherePos.y;
+	spheres.at((1 * 17) + 2) = spherePos.z;
+	//std::cout << spheres.at((1 * 17) + 0) << ", " << spheres.at((1 * 17) + 1) << ", " << spheres.at((1 * 17) + 2) << "\n";
 }
 
 int Engine::mainLoop()

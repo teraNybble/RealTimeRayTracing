@@ -2,6 +2,7 @@
 #define CLWRAPPER_H
 
 #include "clHelp.h"
+#include <iostream>
 
 class CLWrapper
 {
@@ -19,8 +20,13 @@ public:
 
 	void init(std::string path, cl_context_properties* properties = NULL);
 
+	inline void clearBuffers() { 
+		memBuff.clear(); 
+	}
+
 	inline void createBuffer(cl_mem_flags flags, ::size_t size,void* host_ptr = NULL, cl_int* err = NULL)	{
 		memBuff.push_back(cl::Buffer(context,flags,size,host_ptr,err));
+		//std::cout << memBuff.size() << "\n";
 	}
 
 	inline void createKernel(std::string name, cl_int* err = NULL){
