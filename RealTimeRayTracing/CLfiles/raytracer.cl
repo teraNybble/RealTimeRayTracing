@@ -178,11 +178,14 @@ float4 reflectColour(float3 intersectPoint, float3 cameraPos, float3 normalVec, 
 {
 	float3 reflectVec = reflect(/*normalise*/(intersectPoint-cameraPos), normalVec);
 	//float3 reflectVec = reflect(normalise(cameraPos-intersectPoint), normalVec);
-	reflectVec = -normalise(reflectVec);
+	reflectVec = normalise(reflectVec);
 	int closestSphere = -1;
     float3 closestIntesect;
+	float closestT = 9999999;
 
+	//printf("numspheres %d\n",numSpheres);
 	for(int j = 0; j < numSpheres; j++){
+		//printf("%d: j = %d\n",sphereId,j);
 		if(j == sphereId) continue; // no point reflecting the sphere with its self
 		float3 rSpherePos= (float3)(
 			sphereData[(j*SPHERE_DATA_SIZE)+0],
@@ -193,34 +196,57 @@ float4 reflectColour(float3 intersectPoint, float3 cameraPos, float3 normalVec, 
 
 		float rt;
 		float3 rq;
-		float closestT;
 
 		dataStreamToFloats(sphereData, j,&rSphereColour,&rLightAmbient,&rLightSpecular,&rMaterialAmbient,&rMaterialDiffuse,&rMaterialSpecular);
-		if(raySphereIntersect(intersectPoint/*+cameraPos*/, reflectVec, &rt, &rq, spherePos/*-cameraPos*/, sphereData[(j*SPHERE_DATA_SIZE)+3])){
-			if(closestSphere != -1){
+		if(raySphereIntersect(intersectPoint/*+cameraPos*/, reflectVec, &rt, &rq, rSpherePos/*-cameraPos*/, sphereData[(j*SPHERE_DATA_SIZE)+3])){
+			//if(!(j == 1 || j == 4)){
+			//printf("%d: j = %d\n",sphereId,j);
+			if(j != 4 && 1 == 0){
+				printf("%d:intersectPoint = %f,%f,%f\trq = %f,%f,%f : %d\n",sphereId ,intersectPoint.x,intersectPoint.y,intersectPoint.z,rq.x,rq.y,rq.z,j);
+			}
+			/*if(j == sphereId && _combFloat4((rq,1),(intersectPoint,1))){	//if the sphere is going to reflect off its self then the ray is going inside the sphere
+				printf("closestSphere was %d\n",closestSphere);
+				closestSphere = -1; 
+				//break;
+			}*/
+			//printf("%dhit sphere %d\n",sphereId,j);
+			//if(closestSphere != -1){
+				//printf("%d:intersectPoint = %f,%f,%f\trq = %f,%f,%f\n",sphereId ,intersectPoint.x,intersectPoint.y,intersectPoint.z,rq.x,rq.y,rq.z);
 				//if(rq.z < closestIntesect.z){
-				if(magnitude(intersectPoint-rq) < magnitude(closestIntesect)) {
-				//if(rt < closestT){
+				//if(magnitude(intersectPoint-rq) < magnitude(intersectPoint-closestIntesect)) {
+				//if((intersectPoint-rq) < (intersectPoint-closestIntesect)) {
+				if(rt < closestT){
+				//if(1){
+				//printf("%d:rt:\t%f\tclosestT:\t%f\n",sphereId,rt,closestT);
+				//if(0){
+				//if((rt > 1.0f && rt <= closestT)){
+					//printf("%d:rt:\t%f\tclosestT:\t%f\t\t%d\n",sphereId,rt,closestT,j);
 					//printf("%d: Closest ID: %d\n",sphereId,j);
 					closestSphere = j;
 					closestIntesect = rq;
 					closestT = rt;
 				}
-			}else{
-				//printf("%d: Closest ID: %d\n",sphereId,j);
-				closestSphere = j;
-				closestIntesect = rq;
-				closestT = rt;
-			}
+			/*}else{
+				if(rt > 0.0f){
+					//printf("setting closestT to %f\n",rt);
+					//printf("%d: Closest ID: %d\n",sphereId,j);
+					closestSphere = j;
+					closestIntesect = rq;
+					closestT = rt;
+				}
+			}*/
 		}
 	}
 
+	//store the reflectiveness of the sphere 
 	if(closestSphere != -1){
-		//printf("%d: the sphere ID used is %d\n",sphereId,closestSphere);
+		/*if(!(closestSphere == 1 || closestSphere == 4)){
+			printf("%d: the sphere ID used is %d\n",sphereId,closestSphere);
+		}*/
 		return (float4)(
-    		sphereData[(closestSphere*SPHERE_DATA_SIZE)+4],
-    		sphereData[(closestSphere*SPHERE_DATA_SIZE)+5],
-    		sphereData[(closestSphere*SPHERE_DATA_SIZE)+6],
+    		0.5 * sphereData[(closestSphere*SPHERE_DATA_SIZE)+4] + 0.5 * sphereData[(sphereId*SPHERE_DATA_SIZE)+4],
+    		0.5 * sphereData[(closestSphere*SPHERE_DATA_SIZE)+5] + 0.5 * sphereData[(sphereId*SPHERE_DATA_SIZE)+5],
+    		0.5 * sphereData[(closestSphere*SPHERE_DATA_SIZE)+6] + 0.5 * sphereData[(sphereId*SPHERE_DATA_SIZE)+6],
     		1
     	);
 	}
