@@ -74,7 +74,8 @@ private:
 	static void createSpheres();
 	static void addSphere(glm::vec3 pos, float r, glm::vec3 colour,
 						  glm::vec3 lightAmbiant, glm::vec3 lightSpecular,
-						  glm::vec3 materialAmbiant, glm::vec3 materialDiffuse, glm::vec3 materialSpecular, float materialShinyness);
+						  glm::vec3 materialAmbiant, glm::vec3 materialDiffuse, glm::vec3 materialSpecular, float materialShinyness,
+						  float reflective);
 public:
 	static int RaySphereIntersect(glm::vec3 point, glm::vec3 direction, float& t, glm::vec3& q);
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);

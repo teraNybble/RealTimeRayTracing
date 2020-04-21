@@ -75,13 +75,13 @@ void Engine::createSpheres()
 	addSphere(glm::vec3(655,360,80), 5,glm::vec3(1,1,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
 	addSphere(glm::vec3(655,360,95),10,glm::vec3(0,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
 	*/
-	addSphere(glm::vec3(625,360,95),10,glm::vec3(0,1,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
-	addSphere(glm::vec3(625,360,80), 5,glm::vec3(0,1,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
-	addSphere(glm::vec3(625,360,65), 1,glm::vec3(1,1,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
+	addSphere(glm::vec3(625,360,95),10,glm::vec3(0,1,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,0.00f);
+	addSphere(glm::vec3(625,360,80), 5,glm::vec3(0,1,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,0.10f);
+	addSphere(glm::vec3(625,360,65), 1,glm::vec3(1,1,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,0.10f);
 	
-	addSphere(glm::vec3(655,360,65), 1,glm::vec3(1,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9, 0.9, 0.9), glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), 50);
-	addSphere(glm::vec3(655,360,80), 5,glm::vec3(1,1,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9, 0.9, 0.9), glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), 50);
-	addSphere(glm::vec3(655,360,95),10,glm::vec3(0,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9, 0.9, 0.9), glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), 50);
+	addSphere(glm::vec3(655,360,65), 1,glm::vec3(1,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,0.25f);
+	addSphere(glm::vec3(655,360,80), 5,glm::vec3(1,1,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,0.90f);
+	addSphere(glm::vec3(655,360,95),10,glm::vec3(0,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,0.45f);
 	
 
 	spheres.shrink_to_fit();
@@ -89,7 +89,7 @@ void Engine::createSpheres()
 
 void Engine::addSphere(glm::vec3 pos, float r, glm::vec3 colour,
 		glm::vec3 lightAmbiant, glm::vec3 lightSpecular,
-		glm::vec3 materialAmbiant, glm::vec3 materialDiffuse, glm::vec3 materialSpecular, float materialShinyness)
+		glm::vec3 materialAmbiant, glm::vec3 materialDiffuse, glm::vec3 materialSpecular, float materialShinyness,float reflective)
 {
 	spheres.push_back(pos.x);	//X
 	spheres.push_back(pos.y);	//Y
@@ -123,6 +123,8 @@ void Engine::addSphere(glm::vec3 pos, float r, glm::vec3 colour,
 	spheres.push_back(materialSpecular.b);
 
 	spheres.push_back(materialShinyness);
+
+	spheres.push_back(reflective);
 
 	numSpheres++;
 }
@@ -441,9 +443,9 @@ void Engine::processEvents()
 
 	//std::cout << spherePos.x << "," << spherePos.y << "," << spherePos.z << "\n";
 	
-	spheres.at((1 * 17) + 0) = spherePos.x;
-	spheres.at((1 * 17) + 1) = spherePos.y;
-	spheres.at((1 * 17) + 2) = spherePos.z;
+	spheres.at((1 * 18) + 0) = spherePos.x;
+	spheres.at((1 * 18) + 1) = spherePos.y;
+	spheres.at((1 * 18) + 2) = spherePos.z;
 	//std::cout << spheres.at((1 * 17) + 0) << ", " << spheres.at((1 * 17) + 1) << ", " << spheres.at((1 * 17) + 2) << "\n";
 }
 

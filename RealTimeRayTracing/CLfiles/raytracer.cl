@@ -94,7 +94,7 @@ int raySphereIntersect(float3 point, float3 direction,float* t, float3* q, float
 	return 1;
 }
 
-#define SPHERE_DATA_SIZE 17
+#define SPHERE_DATA_SIZE 18
 
 void dataStreamToFloats(__global float* sphereData, int i, float4* sphereColour, float4* lightAmbient, float4* lightSpecular, float4* materialAmbient, float4* materialDiffuse, float4* materialSpecular)
 {
@@ -199,44 +199,18 @@ float4 reflectColour(float3 intersectPoint, float3 cameraPos, float3 normalVec, 
 
 		dataStreamToFloats(sphereData, j,&rSphereColour,&rLightAmbient,&rLightSpecular,&rMaterialAmbient,&rMaterialDiffuse,&rMaterialSpecular);
 		if(raySphereIntersect(intersectPoint/*+cameraPos*/, reflectVec, &rt, &rq, rSpherePos/*-cameraPos*/, sphereData[(j*SPHERE_DATA_SIZE)+3])){
-			//if(!(j == 1 || j == 4)){
-			//printf("%d: j = %d\n",sphereId,j);
 			if(j != 4 && 1 == 0){
 				printf("%d:intersectPoint = %f,%f,%f\trq = %f,%f,%f : %d\n",sphereId ,intersectPoint.x,intersectPoint.y,intersectPoint.z,rq.x,rq.y,rq.z,j);
 			}
-			/*if(j == sphereId && _combFloat4((rq,1),(intersectPoint,1))){	//if the sphere is going to reflect off its self then the ray is going inside the sphere
-				printf("closestSphere was %d\n",closestSphere);
-				closestSphere = -1; 
-				//break;
-			}*/
-			//printf("%dhit sphere %d\n",sphereId,j);
-			//if(closestSphere != -1){
-				//printf("%d:intersectPoint = %f,%f,%f\trq = %f,%f,%f\n",sphereId ,intersectPoint.x,intersectPoint.y,intersectPoint.z,rq.x,rq.y,rq.z);
-				//if(rq.z < closestIntesect.z){
-				//if(magnitude(intersectPoint-rq) < magnitude(intersectPoint-closestIntesect)) {
-				//if((intersectPoint-rq) < (intersectPoint-closestIntesect)) {
 				if(rt < closestT){
-				//if(1){
-				//printf("%d:rt:\t%f\tclosestT:\t%f\n",sphereId,rt,closestT);
-				//if(0){
-				//if((rt > 1.0f && rt <= closestT)){
-					//printf("%d:rt:\t%f\tclosestT:\t%f\t\t%d\n",sphereId,rt,closestT,j);
-					//printf("%d: Closest ID: %d\n",sphereId,j);
 					closestSphere = j;
 					closestIntesect = rq;
 					closestT = rt;
 				}
-			/*}else{
-				if(rt > 0.0f){
-					//printf("setting closestT to %f\n",rt);
-					//printf("%d: Closest ID: %d\n",sphereId,j);
-					closestSphere = j;
-					closestIntesect = rq;
-					closestT = rt;
-				}
-			}*/
 		}
 	}
+
+	float reflectVal = sphereData[(sphereId*SPHERE_DATA_SIZE)+17];
 
 	//store the reflectiveness of the sphere 
 	if(closestSphere != -1){
@@ -244,9 +218,9 @@ float4 reflectColour(float3 intersectPoint, float3 cameraPos, float3 normalVec, 
 			printf("%d: the sphere ID used is %d\n",sphereId,closestSphere);
 		}*/
 		return (float4)(
-    		0.5 * sphereData[(closestSphere*SPHERE_DATA_SIZE)+4] + 0.5 * sphereData[(sphereId*SPHERE_DATA_SIZE)+4],
-    		0.5 * sphereData[(closestSphere*SPHERE_DATA_SIZE)+5] + 0.5 * sphereData[(sphereId*SPHERE_DATA_SIZE)+5],
-    		0.5 * sphereData[(closestSphere*SPHERE_DATA_SIZE)+6] + 0.5 * sphereData[(sphereId*SPHERE_DATA_SIZE)+6],
+    		reflectVal * sphereData[(closestSphere*SPHERE_DATA_SIZE)+4] + (1-reflectVal) * sphereData[(sphereId*SPHERE_DATA_SIZE)+4],
+    		reflectVal * sphereData[(closestSphere*SPHERE_DATA_SIZE)+5] + (1-reflectVal) * sphereData[(sphereId*SPHERE_DATA_SIZE)+5],
+    		reflectVal * sphereData[(closestSphere*SPHERE_DATA_SIZE)+6] + (1-reflectVal) * sphereData[(sphereId*SPHERE_DATA_SIZE)+6],
     		1
     	);
 	}
@@ -324,9 +298,9 @@ float4 calculatePixelColour(float3 cameraPos, float screenDist, __global float* 
 
 		//printf("closestIntersect %4.0v3hlf\n", closestIntesect);
 		//using the green sphere as a reflective sphere
-		if(_combFloat4(sphereColour, (float4)(0,1,0,1))){
-			sphereColour = reflectColour(closestIntesect, cameraPos, normalVec, spherePos, closestSphere, sphereData, numSpheres);
-		}
+		
+		sphereColour = reflectColour(closestIntesect, cameraPos, normalVec, spherePos, closestSphere, sphereData, numSpheres);
+		
 
 
 		return calculateLighting(sphereColour,normalVec,closestIntesect - cameraPos,
