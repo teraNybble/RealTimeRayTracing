@@ -1,4 +1,6 @@
 #define BACKGROUND_COLOUR (float4)(0,0,0,1)
+#define PI 3.14159265358979
+#define SPHERE_DATA_SIZE 18
 
 bool _combFloat4(float4 f4a,float4 f4b)
 {
@@ -29,37 +31,6 @@ float3 refract(float3 I, float3 N, float ior)
 }
 
 #define normalise(x) ({x/magnitude(x);})
-//!useful vector functions
-float4 calculateLighting(
-	float4 inColour, float3 inNormal,
-	float3 eyePos, float3 lightDirection, float4 lightAmbient, float4 lightSpecular,
-	float4 materialAmbient, float4 materialDiffuse, float4 materialSpecular , float materialShininess)
-{
-	float3 n = normalise(inNormal);
-	float3 L = normalise(lightDirection);
-
-	float3 v = normalise(-eyePos);
-	float3 r = normalise(-reflect(L,n));
-
-	float RdotV = max(0.0f,(float)dot(r,v));
-	float NdotL = max((float)dot(n,L),0.0f);
-
-	float4  colour = lightAmbient * materialAmbient;
-
-	//printf("calculated colour %1.2v3hlf\n", colour);
-	//printf("NdotL %1.2v8hlf\n", (float8)(n,0.69,0.42,L));
-	//printf("NdotL %d\n", NdotL);
-
-	if(NdotL > 0.0)
-	{
-		colour += (lightAmbient * materialDiffuse * NdotL);
-		colour += materialSpecular * lightSpecular * pow(RdotV, materialShininess);
-	}
-
-
-
-	return colour * inColour;
-}
 
 //https://gamedev.stackexchange.com/questions/96459/fast-ray-sphere-collision-code
 int raySphereIntersect(float3 point, float3 direction,float* t, float3* q, float3 spherePos, float sphereRadius)
@@ -93,8 +64,87 @@ int raySphereIntersect(float3 point, float3 direction,float* t, float3* q, float
 
 	return 1;
 }
+/*
+bool calculateShadow(float3 intersectPoint, float3 lightPos, float3 normalVec, float3 spherePos, int sphereId,
+	__global float* sphereData, int numSpheres)
+{
+	int closestSphere = -1;
+	float3 closestIntersect;
+	float closestT = 999999;
 
-#define SPHERE_DATA_SIZE 18
+	float3 shadowVec = lightPos - intersectPoint;
+	shadowVec = normalise(shadowVec);
+
+	/*
+	//see if we are looking through the sphere
+	if(acos((shadowVec.x*normalVec.x + shadowVec.y*normalVec.y + shadowVec.z*normalVec.z)/magnitude(shadowVec)*magnitude(normalVec)) > PI){
+		printf("too big\n");
+		return false;
+	}
+
+	for(int i = 0; i < numSpheres; i++){
+		if(i == sphereId) continue; //a sphere cant cast a shadow on its self
+		float3 rSpherePos= (float3)(
+			sphereData[(i*SPHERE_DATA_SIZE)+0],
+			sphereData[(i*SPHERE_DATA_SIZE)+1],
+			sphereData[(i*SPHERE_DATA_SIZE)+2]
+		);
+		float4 rSphereColour,rLightAmbient,rLightSpecular,rMaterialAmbient,rMaterialDiffuse,rMaterialSpecular;
+
+		float rt;
+		float3 rq;
+
+		dataStreamToFloats(sphereData, i,&rSphereColour,&rLightAmbient,&rLightSpecular,&rMaterialAmbient,&rMaterialDiffuse,&rMaterialSpecular);
+		
+		if(raySphereIntersect(intersectPoint, shadowVec, &rt, &rq, rSpherePos, sphereData[(i*SPHERE_DATA_SIZE)+3])){
+			//if(i == sphereId) { return false; } // the ray is going inside the sphere
+			closestSphere = i;
+		}
+	}
+
+	return closestSphere > -1;
+}
+*/
+
+//!useful vector functions
+float4 calculateLighting(
+	float4 inColour, float4 inColourReflected, float3 inNormal,
+	float3 eyePos, float3 lightDirection, float4 lightAmbient, float4 lightSpecular,
+	float4 materialAmbient, float4 materialDiffuse, float4 materialSpecular , float materialShininess,
+	bool inShadow)
+{
+	float3 n = normalise(inNormal);
+	float3 L = normalise(lightDirection);
+
+	float3 v = normalise(-eyePos);
+	float3 r = normalise(-reflect(L,n));
+
+	float RdotV = max(0.0f,(float)dot(r,v));
+	float NdotL = max((float)dot(n,L),0.0f);
+
+	float4  colour = lightAmbient * materialAmbient;
+
+	//printf("calculated colour %1.2v3hlf\n", colour);
+	//printf("NdotL %1.2v8hlf\n", (float8)(n,0.69,0.42,L));
+	//printf("NdotL %d\n", NdotL);
+
+	if(NdotL > 0.0 && !inShadow)
+	{
+	/*
+		if(inShadow){
+			//return (float4)(0,0,0,1);//colour * inColour;
+			return colour * inColour;
+		}*/
+		colour += (lightAmbient * materialDiffuse * NdotL);
+		colour += materialSpecular * lightSpecular * pow(RdotV, materialShininess);
+		//only apply the reflection if the sphere is lit
+		return colour * ((inColourReflected * (NdotL)) + (inColour * (1-NdotL)));
+	}
+
+
+
+	return colour * inColour;
+}
 
 void dataStreamToFloats(__global float* sphereData, int i, float4* sphereColour, float4* lightAmbient, float4* lightSpecular, float4* materialAmbient, float4* materialDiffuse, float4* materialSpecular)
 {
@@ -173,6 +223,46 @@ void findClosestSphere(__global float* sphereData, int numSpheres, float3 startP
 	}
 }
 
+bool calculateShadow(float3 intersectPoint, float3 lightPos, float3 normalVec, float3 spherePos, int sphereId,
+	__global float* sphereData, int numSpheres)
+{
+	int closestSphere = -1;
+	float3 closestIntersect;
+	float closestT = 999999;
+
+	float3 shadowVec = lightPos - intersectPoint;
+	shadowVec = normalise(shadowVec);
+
+	/*
+	//see if we are looking through the sphere
+	if(acos((shadowVec.x*normalVec.x + shadowVec.y*normalVec.y + shadowVec.z*normalVec.z)/magnitude(shadowVec)*magnitude(normalVec)) > PI){
+		printf("too big\n");
+		return false;
+	}*/
+
+	for(int i = 0; i < numSpheres; i++){
+		if(i == sphereId) continue; //a sphere cant cast a shadow on its self
+		float3 rSpherePos= (float3)(
+			sphereData[(i*SPHERE_DATA_SIZE)+0],
+			sphereData[(i*SPHERE_DATA_SIZE)+1],
+			sphereData[(i*SPHERE_DATA_SIZE)+2]
+		);
+		float4 rSphereColour,rLightAmbient,rLightSpecular,rMaterialAmbient,rMaterialDiffuse,rMaterialSpecular;
+
+		float rt;
+		float3 rq;
+
+		dataStreamToFloats(sphereData, i,&rSphereColour,&rLightAmbient,&rLightSpecular,&rMaterialAmbient,&rMaterialDiffuse,&rMaterialSpecular);
+		
+		if(raySphereIntersect(intersectPoint, shadowVec, &rt, &rq, rSpherePos, sphereData[(i*SPHERE_DATA_SIZE)+3])){
+			//if(i == sphereId) { return false; } // the ray is going inside the sphere
+			closestSphere = i;
+		}
+	}
+
+	return closestSphere > -1;
+}
+
 float4 reflectColour(float3 intersectPoint, float3 cameraPos, float3 normalVec, float3 spherePos, int sphereId,
 	__global float* sphereData, int numSpheres)
 {
@@ -199,9 +289,6 @@ float4 reflectColour(float3 intersectPoint, float3 cameraPos, float3 normalVec, 
 
 		dataStreamToFloats(sphereData, j,&rSphereColour,&rLightAmbient,&rLightSpecular,&rMaterialAmbient,&rMaterialDiffuse,&rMaterialSpecular);
 		if(raySphereIntersect(intersectPoint/*+cameraPos*/, reflectVec, &rt, &rq, rSpherePos/*-cameraPos*/, sphereData[(j*SPHERE_DATA_SIZE)+3])){
-			if(j != 4 && 1 == 0){
-				printf("%d:intersectPoint = %f,%f,%f\trq = %f,%f,%f : %d\n",sphereId ,intersectPoint.x,intersectPoint.y,intersectPoint.z,rq.x,rq.y,rq.z,j);
-			}
 				if(rt < closestT){
 					closestSphere = j;
 					closestIntesect = rq;
@@ -299,13 +386,22 @@ float4 calculatePixelColour(float3 cameraPos, float screenDist, __global float* 
 		//printf("closestIntersect %4.0v3hlf\n", closestIntesect);
 		//using the green sphere as a reflective sphere
 		
-		sphereColour = reflectColour(closestIntesect, cameraPos, normalVec, spherePos, closestSphere, sphereData, numSpheres);
-		
+		bool inShadow = calculateShadow(closestIntesect,lightPos,normalVec, spherePos, closestSphere, sphereData, numSpheres);
+		//bool inShadow = false;
+		/*
+		if(calculateShadow(closestIntesect,lightPos,normalVec, spherePos, closestSphere, sphereData, numSpheres)){
+			return (float4)(0,0,0,1);//return black
+		}*/
 
+		float4 reflectedColour = sphereColour;
 
-		return calculateLighting(sphereColour,normalVec,closestIntesect - cameraPos,
+		if(!inShadow){
+			reflectedColour = reflectColour(closestIntesect, cameraPos, normalVec, spherePos, closestSphere, sphereData, numSpheres);
+		}
+
+		return calculateLighting(sphereColour, reflectedColour ,normalVec,closestIntesect - cameraPos,
 			lightDirection,lightAmbient,lightSpecular,//light //direction ambiant specular
-			materialAmbient,materialDiffuse,materialSpecular,sphereData[(closestSphere*SPHERE_DATA_SIZE)+16]);//material //ambient diffuse specular shininess
+			materialAmbient,materialDiffuse,materialSpecular,sphereData[(closestSphere*SPHERE_DATA_SIZE)+16],inShadow);//material //ambient diffuse specular shininess
 	}
 
 	return BACKGROUND_COLOUR;
