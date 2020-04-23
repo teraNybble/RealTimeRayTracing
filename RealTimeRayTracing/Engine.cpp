@@ -50,31 +50,8 @@ float Engine::calculateDist(float fov)
 
 void Engine::createSpheres()
 {
-	/*
-	spheres.push_back(640);	//X
-	spheres.push_back(360);	//Y
-	spheres.push_back(15);	//Z
-
-	spheres.push_back(1);	//radius
-
-	spheres.push_back(1);	//R
-	spheres.push_back(0);	//G
-	spheres.push_back(0);	//B
-
-	numSpheres = 1;
-*/
 	numSpheres = 0;
-/*
-	addSphere(glm::vec3(640,360,15),1,glm::vec3(1,0,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
-	addSphere(glm::vec3(650,360,30),5,glm::vec3(0,1,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
-	addSphere(glm::vec3(610,345,50),7,glm::vec3(0,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
-	addSphere(glm::vec3(660,375,50),7,glm::vec3(1,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
-*/
-	/*
-	addSphere(glm::vec3(655,360,65), 1,glm::vec3(1,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
-	addSphere(glm::vec3(655,360,80), 5,glm::vec3(1,1,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
-	addSphere(glm::vec3(655,360,95),10,glm::vec3(0,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50);
-	*/
+
 	addSphere(glm::vec3(625,360,95),10,glm::vec3(0,1,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,0.00f);
 	addSphere(glm::vec3(625,360,80), 5,glm::vec3(0,1,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,0.90f);
 	addSphere(glm::vec3(625,360,65), 1,glm::vec3(1,1,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,0.50f);
@@ -100,16 +77,7 @@ void Engine::addSphere(glm::vec3 pos, float r, glm::vec3 colour,
 	spheres.push_back(colour.r);	//R
 	spheres.push_back(colour.g);	//G
 	spheres.push_back(colour.b);	//B
-// Should be moved to light data stream
-/*
-	spheres.push_back(lightAmbiant.r);
-	spheres.push_back(lightAmbiant.g);
-	spheres.push_back(lightAmbiant.b);
 
-	spheres.push_back(lightSpecular.r);
-	spheres.push_back(lightSpecular.g);
-	spheres.push_back(lightSpecular.b);*/
-// END
 	spheres.push_back(materialAmbiant.r);
 	spheres.push_back(materialAmbiant.g);
 	spheres.push_back(materialAmbiant.b);
@@ -338,8 +306,6 @@ void Engine::createScreenImage()
 			float r = 0.0f;
 			float g = 0.0f;
 			float b = 0.0f;
-			//if(((i/16)%2==0 && (j/16)%2 == 0) || ((i/16)%2==1 && (j/16)%2 == 1))
-			//if(((i/16)%3==0 && (j/16)%3 == 0) || ((i/16)%3==1 && (j/16)%3 == 2) || ((i/16)%3==2 && (j/16)%3 == 1))
 			if(i<((2*screenHeight)/3.0) && j<((2*screenWidth)/3.0))
 				r = 1.0f;
 			if(i>((1*screenHeight)/3.0) && j>((1*screenWidth)/6.0) && j<((5*screenWidth)/6.0))
@@ -417,7 +383,6 @@ void Engine::processEvents()
 
 	if (keyMap.at(GLFW_KEY_A)) {
 		//move a sphere left
-		//std::cout << "moving sphere\n";
 		spherePos.x -= 0.1f;
 	}
 	if (keyMap.at(GLFW_KEY_D)) {
