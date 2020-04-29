@@ -3,6 +3,7 @@
 
 #include "clHelp.h"
 #include <iostream>
+#include <string>
 
 class CLWrapper
 {
@@ -16,6 +17,7 @@ private:
 
 	cl::Program createProgram(const std::string& file, cl_context_properties* properties = NULL);
 	void printDeviceInfo(const std::vector<cl::Device>& devices);
+	static std::string parseLog(char* log);
 public:
 
 	void init(std::string path, cl_context_properties* properties = NULL);

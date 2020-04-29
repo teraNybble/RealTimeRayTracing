@@ -28,6 +28,8 @@ int Engine::numSpheres;
  * cl_int * errcode_ret)
 */
 
+//http://graphics.berkeley.edu/papers/DeRousiers-RRR-2011-02/DeRousiers-RRR-2011-02.pdf
+//https://graphics.stanford.edu/courses/cs148-10-summer/docs/2006--degreve--reflection_refraction.pdf
 float Engine::calculateFOV(glm::vec2 a, glm::vec2 b, glm::vec2 c)
 {
 	glm::vec2 v1 = b-a;
@@ -52,13 +54,15 @@ void Engine::createSpheres()
 {
 	numSpheres = 0;
 
-	addSphere(glm::vec3(625,360,95),10,glm::vec3(0,1,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,0.00f);
+	addSphere(glm::vec3(625,360,95),10,glm::vec3(0,1,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,0.50f);
 	addSphere(glm::vec3(625,360,80), 5,glm::vec3(0,1,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,0.90f);
 	addSphere(glm::vec3(625,360,65), 1,glm::vec3(1,1,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,0.50f);
 	
-	addSphere(glm::vec3(655,360,65), 1,glm::vec3(1,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,0.25f);
+	addSphere(glm::vec3(655,360,65), 1,glm::vec3(1,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,0.50f);
 	addSphere(glm::vec3(655,360,80), 5,glm::vec3(1,1,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,1.00f);
 	addSphere(glm::vec3(655,360,95),10,glm::vec3(0,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,0.75f);
+
+	addSphere(glm::vec3(640,360,500),100,glm::vec3(0.25,0.25,0.25),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,1.0f);
 	
 
 	spheres.shrink_to_fit();

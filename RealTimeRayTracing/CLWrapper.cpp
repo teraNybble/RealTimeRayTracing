@@ -1,6 +1,8 @@
 #include "CLWrapper.h"
 #include <iostream>
 #include <fstream>
+#include <string>
+#include <sstream>
 
 /*
 #ifdef _WIN32
@@ -54,6 +56,32 @@ void CLWrapper::printDeviceInfo(const std::vector<cl::Device>& devices)
 	}
 }
 
+std::string CLWrapper::parseLog(char* log)
+{
+	std::istringstream iss(log);
+	std::string line;
+	std::stringstream out;
+
+	while (std::getline(iss, line)) {
+		//parse the lines
+		size_t found;
+		if (line.find("note") != std::string::npos) {
+			out << "\033[92m" << line << "\n";
+		}
+		else if (line.find("warning") != std::string::npos) {
+			out << "\033[33m" << line << "\n";
+		}
+		else if (line.find("error") != std::string::npos) {
+			out << "\033[31m" << line << "\n";
+		}
+		else {
+			out << "\033[0m" << line << "\n";
+		}
+	}
+
+	return out.str();
+}
+
 //code 'borrowed' from: https://www.youtube.com/watch?v=N0H0NCoOTUA
 cl::Program CLWrapper::createProgram(const std::string& file, cl_context_properties* properties)
 {
@@ -99,7 +127,7 @@ cl::Program CLWrapper::createProgram(const std::string& file, cl_context_propert
 
 		clGetProgramBuildInfo(program(),device(),CL_PROGRAM_BUILD_LOG,logSize,log,NULL);
 
-		std::cerr << "OpenCL build error:\n" << log << std::endl;
+		std::cerr << "OpenCL build error:\n" << parseLog(log) << std::endl;
 		exit(error);
 
 	}else if(error) { std::cerr << "OpenCL error:\t" << getErrorString(error) << std::endl; exit(error); }
