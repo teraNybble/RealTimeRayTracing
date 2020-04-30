@@ -21,7 +21,20 @@ float3 reflect(float3 I, float3 N)
 //IOR : indice of refraction
 float3 refract(float3 I, float3 N, float ior1, float ior2)
 {
-	return ior1/ior2*(N*(-N*I))-N*sqrt(1-((ior1/ior2)*(ior1/ior2))*dot((N*ior1),(N*ior1)));
+	//printf("N = %f,%f,%f\n",N.x,N.y,N.z);
+	//printf("I = %f,%f,%f\n",I.x,I.y,I.z);
+	float part0 = ior1/ior2;
+	float3 part1 = cross(N,cross(-N,I));
+	float part2 = sqrt(1-((ior1/ior2)*(ior1/ior2))*(dot(cross(N,I),cross(N,I))));
+	//printf("%f\n",(dot(cross(N,I),cross(N,I))));
+	//printf("part2 = %f\n",part2);
+	
+	float3 temp = part0 * part1 - N;// * part2;
+	//printf("temp = %f,%f,%f\n",temp.x,temp.y,temp.z);
+	
+	float3 returnVal = (ior1/ior2)*cross(N,cross(-N,I))-N*sqrt(1-((ior1/ior2)*(ior1/ior2))*dot(cross(N,I),cross(N,I)));
+	//printf("return vec %f,%f,%f\n",returnVal.x,returnVal.y,returnVal.z);
+	return returnVal;
 
 	//return (float3)(0,0,0);
 }
@@ -270,17 +283,35 @@ float4 reflectColour(float3 intersectPoint, float3 cameraPos, float3 normalVec, 
 float4 refractColour(float3 intersectPoint, float3 cameraPos, float3 normalVec, float ior,float3 spherePos, int sphereId,
 	__global float* sphereData, int numSpheres)
 {
+	float3 exitPoint = intersectPoint;
+	//printf("refracting\n");
+	float rt;
+	float3 rq;
 	//step 1: get the intersect point and calculate the refeaction ray
+	//float3 refractVec = refract((intersectPoint-cameraPos), normalVec,1,ior);
+	float3 inVec = cameraPos-intersectPoint;
+	inVec = -normalise(inVec);
+	float3 refractVec = refract(inVec, normalVec,1,ior);
+	//printf("in vec %f,%f,$f\nout vec %f,%f,%f\n",temp.x,temp.y,temp.z,refractVec.x,refractVec.y,refractVec.z);
+	refractVec = normalise(refractVec);
 	//step 2: calculate where the refection ray exits the sphere and calculate the refraction ray
+	if((raySphereIntersect(intersectPoint, refractVec, &rt, &rq, spherePos, sphereData[(sphereId*SPHERE_DATA_SIZE)+3]))){
+		/*inVec = intersectPoint-rq;
+		inVec = normalise(inVec);
+		float3 outNormal = spherePos - rq;
+		outNormal = normalise(outNormal);
+		refractVec = refract(inVec,outNormal,ior,1);
+		refractVec = normalise(refractVec);
+		exitPoint = rq;*/
+		//return (float4)(1,0,0,1);
+	}
 	//step 3: see if it hits another sphere and calculate the colour
 
 
 
 
-
-
-	float3 refractVec = refract((intersectPoint-cameraPos), normalVec,ior);
-	refractVec = normalise(refractVec);
+	
+	
 	int closestSphere = -1;
     float3 closestIntesect;
 	float closestT = 9999999;
@@ -300,14 +331,14 @@ float4 refractColour(float3 intersectPoint, float3 cameraPos, float3 normalVec, 
 		float3 rq;
 
 		dataStreamToFloats(sphereData, j,&rSphereColour,&rLightAmbient,&rLightSpecular,&rMaterialAmbient,&rMaterialDiffuse,&rMaterialSpecular);
-		if(raySphereIntersect(intersectPoint, refractVec, &rt, &rq, rSpherePos, sphereData[(j*SPHERE_DATA_SIZE)+3])){
-				if(rt < closestT){
-					
-					closestSphere = j;
-					closestIntesect = rq;
-					closestT = rt;
-					
-				}
+		if(raySphereIntersect(exitPoint, refractVec, &rt, &rq, rSpherePos, sphereData[(j*SPHERE_DATA_SIZE)+3])){
+			if(rt < closestT){
+				
+				closestSphere = j;
+				closestIntesect = rq;
+				closestT = rt;
+				
+			}
 		}
 	}
 
@@ -330,12 +361,8 @@ float4 refractColour(float3 intersectPoint, float3 cameraPos, float3 normalVec, 
     	);
 	}
 	
-	return (float4)(
-			sphereData[(sphereId*SPHERE_DATA_SIZE)+4],
-			sphereData[(sphereId*SPHERE_DATA_SIZE)+5],
-			sphereData[(sphereId*SPHERE_DATA_SIZE)+6],
-			1
-		);
+
+	return BACKGROUND_COLOUR;
 }
 
 float4 calculatePixelColour(float3 cameraPos, float screenDist, __global float* sphereData, int numSpheres, __global float* lighting)
@@ -416,10 +443,17 @@ float4 calculatePixelColour(float3 cameraPos, float screenDist, __global float* 
 		}
 
 		//testing the refractive code
-		/*
-		if(_combFloat4(sphereColour, (float4)(1,0,0,1))){
-			refractiveColour = refractColour(closestIntesect, cameraPos, normalVec, 1,spherePos, closestSphere, sphereData, numSpheres);
-		}*/
+		
+		if(_combFloat4(sphereColour, (float4)(0,1,0,1))){
+			refractiveColour = refractColour(closestIntesect, cameraPos, normalVec, 0.9,spherePos, closestSphere, sphereData, numSpheres);
+			//temporaraly return reftacted colour mixed with sphere colour 
+			return (float4)(
+				0.5 * refractiveColour.x + 0.5 * sphereColour.x,
+				0.5 * refractiveColour.y + 0.5 * sphereColour.y,
+				0.5 * refractiveColour.z + 0.5 * sphereColour.z,
+				1
+			);
+		}
 
 		return calculateLighting(sphereColour, reflectedColour ,normalVec,closestIntesect - cameraPos,
 			lightDirection,lightAmbient,lightSpecular,//light //direction ambiant specular

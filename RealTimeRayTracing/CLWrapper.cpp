@@ -64,7 +64,7 @@ std::string CLWrapper::parseLog(char* log)
 
 	while (std::getline(iss, line)) {
 		//parse the lines
-		size_t found;
+		//size_t found;
 		if (line.find("note") != std::string::npos) {
 			out << "\033[92m" << line << "\n";
 		}
