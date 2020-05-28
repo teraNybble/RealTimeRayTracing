@@ -38,10 +38,17 @@
 
 #define PI 3.14159265358979
 
+#include <random>
+
 class Engine
 {
 private:
-	float x = 0, y = 0, z = 0;
+	float x = 607, y = 345, z = 70;
+	//float newX = 0; newY = 0; newZ = 0;
+	//std::default_random_engine generator;
+	std::random_device gen;
+	std::uniform_real_distribution<float> dis;
+	//static auto rand = std::bind(distribution, generator);
 
 	Shader myShader;
 	GLScreen myCube;
@@ -75,7 +82,7 @@ private:
 	static void addSphere(glm::vec3 pos, float r, glm::vec3 colour,
 						  glm::vec3 lightAmbiant, glm::vec3 lightSpecular,
 						  glm::vec3 materialAmbiant, glm::vec3 materialDiffuse, glm::vec3 materialSpecular, float materialShinyness,
-						  float reflective);
+						  float reflective, float opacity, float refractiveIndex);
 public:
 	static int RaySphereIntersect(glm::vec3 point, glm::vec3 direction, float& t, glm::vec3& q);
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);

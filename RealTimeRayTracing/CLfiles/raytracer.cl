@@ -1,6 +1,6 @@
 #define BACKGROUND_COLOUR (float4)(0,0,0,1)
 #define PI 3.14159265358979
-#define SPHERE_DATA_SIZE 18
+#define SPHERE_DATA_SIZE 20
 
 bool _combFloat4(float4 f4a,float4 f4b)
 {
@@ -75,10 +75,10 @@ int raySphereIntersect(float3 point, float3 direction,float* t, float3* q, float
 //!useful vector functions
 
 float4 calculateLighting(
-	float4 inColour, float4 inColourReflected, float3 inNormal,
+	float4 inColour, float4 inColourReflected,float4 inColourRefracted, float3 inNormal,
 	float3 eyePos, float3 lightDirection, float4 lightAmbient, float4 lightSpecular,
 	float4 materialAmbient, float4 materialDiffuse, float4 materialSpecular , float materialShininess,
-	bool inShadow)
+	bool inShadow, float opacity)
 {
 	float3 n = normalise(inNormal);
 	float3 L = normalise(lightDirection);
@@ -95,17 +95,23 @@ float4 calculateLighting(
 	//printf("NdotL %1.2v8hlf\n", (float8)(n,0.69,0.42,L));
 	//printf("NdotL %d\n", NdotL);
 
+	float4 newColour = colour * inColour;
+
 	if(NdotL > 0.0 && !inShadow)
 	{
 		colour += (lightAmbient * materialDiffuse * NdotL);
 		colour += materialSpecular * lightSpecular * pow(RdotV, materialShininess);
 		//only apply the reflection if the sphere is lit
-		return colour * ((inColourReflected * (NdotL)) + (inColour * (1-NdotL)));
+		newColour = colour * ((inColourReflected * (NdotL)) + (inColour * (1-NdotL)));
 	}
 
 
-
-	return colour * inColour;
+	if(opacity == 1){
+		return newColour;
+	} else {
+		//return inColourRefracted
+		return ((1-opacity)*inColourRefracted) + (opacity * newColour);
+	}
 }
 
 void dataStreamToFloats(__global float* sphereData, int i, float4* sphereColour, float4* lightAmbient, float4* lightSpecular, float4* materialAmbient, float4* materialDiffuse, float4* materialSpecular)
@@ -342,7 +348,7 @@ float4 refractColour(float3 intersectPoint, float3 cameraPos, float3 normalVec, 
 		}
 	}
 
-	float reflectVal = sphereData[(sphereId*SPHERE_DATA_SIZE)+17];
+	//float reflectVal = sphereData[(sphereId*SPHERE_DATA_SIZE)+17];
 
 	//store the reflectiveness of the sphere 
 	if(closestSphere != -1){
@@ -352,13 +358,13 @@ float4 refractColour(float3 intersectPoint, float3 cameraPos, float3 normalVec, 
     		sphereData[(closestSphere*SPHERE_DATA_SIZE)+6],
     		1
     	);
-		
+		/*
 		return (float4)(
     		reflectVal * sphereData[(closestSphere*SPHERE_DATA_SIZE)+4] + (1-reflectVal) * sphereData[(sphereId*SPHERE_DATA_SIZE)+4],
     		reflectVal * sphereData[(closestSphere*SPHERE_DATA_SIZE)+5] + (1-reflectVal) * sphereData[(sphereId*SPHERE_DATA_SIZE)+5],
     		reflectVal * sphereData[(closestSphere*SPHERE_DATA_SIZE)+6] + (1-reflectVal) * sphereData[(sphereId*SPHERE_DATA_SIZE)+6],
     		1
-    	);
+    	);*/
 	}
 	
 
@@ -438,26 +444,30 @@ float4 calculatePixelColour(float3 cameraPos, float screenDist, __global float* 
 		float4 reflectedColour = sphereColour;
 		float4 refractiveColour = sphereColour;
 
-		if(!inShadow){
+		float reflectVal = sphereData[(closestSphere*SPHERE_DATA_SIZE)+17];
+
+		if(!inShadow && reflectVal > 0){
 			reflectedColour = reflectColour(closestIntesect, cameraPos, normalVec, spherePos, closestSphere, sphereData, numSpheres);
 		}
 
 		//testing the refractive code
-		
-		if(_combFloat4(sphereColour, (float4)(0,1,0,1))){
-			refractiveColour = refractColour(closestIntesect, cameraPos, normalVec, 0.9,spherePos, closestSphere, sphereData, numSpheres);
+		float opacity = sphereData[(closestSphere*SPHERE_DATA_SIZE)+18];
+		if(opacity<1){
+			refractiveColour = refractColour(closestIntesect, cameraPos, normalVec, sphereData[(closestSphere*SPHERE_DATA_SIZE)+19],spherePos, closestSphere, sphereData, numSpheres);
 			//temporaraly return reftacted colour mixed with sphere colour 
+			/*
 			return (float4)(
-				0.5 * refractiveColour.x + 0.5 * sphereColour.x,
-				0.5 * refractiveColour.y + 0.5 * sphereColour.y,
-				0.5 * refractiveColour.z + 0.5 * sphereColour.z,
+				(1-opacity) * refractiveColour.x + (opacity) * sphereColour.x,
+				(1-opacity) * refractiveColour.y + (opacity) * sphereColour.y,
+				(1-opacity) * refractiveColour.z + (opacity) * sphereColour.z,
 				1
-			);
+			);*/
 		}
 
-		return calculateLighting(sphereColour, reflectedColour ,normalVec,closestIntesect - cameraPos,
+		//clculate lighting will probably need the opacity of the object
+		return calculateLighting(sphereColour, reflectedColour,refractiveColour ,normalVec,closestIntesect - cameraPos,
 			lightDirection,lightAmbient,lightSpecular,//light //direction ambiant specular
-			materialAmbient,materialDiffuse,materialSpecular,sphereData[(closestSphere*SPHERE_DATA_SIZE)+16],inShadow);//material //ambient diffuse specular shininess
+			materialAmbient,materialDiffuse,materialSpecular,sphereData[(closestSphere*SPHERE_DATA_SIZE)+16],inShadow,opacity);//material //ambient diffuse specular shininess
 	}
 
 	return BACKGROUND_COLOUR;

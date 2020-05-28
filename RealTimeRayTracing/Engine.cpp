@@ -2,6 +2,10 @@
 
 int Engine::screenWidth = 1280;
 int Engine::screenHeight = 720;
+/*
+int Engine::screenWidth  = 1920;
+int Engine::screenHeight = 1080;
+*/
 glm::mat4 Engine::ProjectionMatrix;
 std::map<int,bool> Engine::keyMap;
 float* Engine::screenImage;
@@ -53,16 +57,30 @@ float Engine::calculateDist(float fov)
 void Engine::createSpheres()
 {
 	numSpheres = 0;
-
-	addSphere(glm::vec3(625,360,95),10,glm::vec3(0,1,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,0.50f);
-	addSphere(glm::vec3(625,360,80), 5,glm::vec3(0,1,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,0.90f);
-	addSphere(glm::vec3(625,360,65), 1,glm::vec3(1,1,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,0.50f);
+	/*
+	addSphere(glm::vec3(625,360,95),10,glm::vec3(0,1,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,0.50f,1.0f,1.0f);
+	addSphere(glm::vec3(625,360,80), 5,glm::vec3(0,1,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,0.90f,0.8f,0.9f);
+	addSphere(glm::vec3(625,360,65), 1,glm::vec3(1,1,0),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,0.50f,1.0f,1.0f);
 	
-	addSphere(glm::vec3(655,360,65), 1,glm::vec3(1,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,0.50f);
-	addSphere(glm::vec3(655,360,80), 5,glm::vec3(1,1,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,1.00f);
-	addSphere(glm::vec3(655,360,95),10,glm::vec3(0,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,0.75f);
+	addSphere(glm::vec3(655,360,65), 1,glm::vec3(1,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,0.50f,1.0f,1.0f);
+	addSphere(glm::vec3(655,360,80), 5,glm::vec3(1,1,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,1.00f,1.0f,1.0f);
+	addSphere(glm::vec3(655,360,95),10,glm::vec3(0,0,1),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,0.75f,1.0f,1.0f);
+	*/
+
+	addSphere(glm::vec3(620, 360, 70),15, glm::vec3(1, 1, 1), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), 50, 0.50f, 0.3f, 0.8f);
+
+	addSphere(glm::vec3(668,341,100),15, glm::vec3(1, 0, 0), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), 50, 0.90f, 1.0f, 0.7f);
+	addSphere(glm::vec3(632,374,110), 5, glm::vec3(0, 1, 0), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), 50, 0.90f, 1.0f, 0.7f);
+	addSphere(glm::vec3(646,354,107), 7, glm::vec3(0, 0, 1), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), 50, 0.90f, 1.0f, 0.7f);
+
+	addSphere(glm::vec3(618,348,100), 5, glm::vec3(1, 1, 0), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), 50, 0.90f, 1.0f, 0.7f);
+	addSphere(glm::vec3(602,369,115),10, glm::vec3(0, 1, 1), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), 50, 0.90f, 1.0f, 0.7f);
+	addSphere(glm::vec3(663,371,120),20, glm::vec3(1, 0, 1), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), 50, 0.90f, 1.0f, 0.7f);
+
 
 	//addSphere(glm::vec3(640,360,500),100,glm::vec3(0.25,0.25,0.25),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),glm::vec3(0.2,0.2,0.2),glm::vec3(0.8,0.8,0.8),glm::vec3(0.9,0.9,0.9),50,1.0f);
+
+	//addSphere(glm::vec3(640, 360, 70), 50, glm::vec3(1, 0, 0), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), 50, 0.90f, 0.8f, 0.7f);
 	
 
 	spheres.shrink_to_fit();
@@ -70,7 +88,7 @@ void Engine::createSpheres()
 
 void Engine::addSphere(glm::vec3 pos, float r, glm::vec3 colour,
 		glm::vec3 lightAmbiant, glm::vec3 lightSpecular,
-		glm::vec3 materialAmbiant, glm::vec3 materialDiffuse, glm::vec3 materialSpecular, float materialShinyness,float reflective)
+		glm::vec3 materialAmbiant, glm::vec3 materialDiffuse, glm::vec3 materialSpecular, float materialShinyness,float reflective,float opacity, float refractiveIndex)
 {
 	spheres.push_back(pos.x);	//X
 	spheres.push_back(pos.y);	//Y
@@ -97,6 +115,12 @@ void Engine::addSphere(glm::vec3 pos, float r, glm::vec3 colour,
 	spheres.push_back(materialShinyness);
 
 	spheres.push_back(reflective);
+
+	//transparancy
+	spheres.push_back(opacity);
+
+	//refractive index
+	spheres.push_back(refractiveIndex);
 
 	numSpheres++;
 }
@@ -158,7 +182,7 @@ void Engine::display()
 	camPos.x = screenWidth/2.0f;
 	camPos.y = screenHeight/2.0f;
 	camPos.z = 0;
-	raytracer.setKernelArgs(1,camPos);
+	raytracer.setKernelArgs(1, camPos);
 	raytracer.setKernelArgs(2, screenDist);
 	raytracer.setKernelArgs(3, raytracer.getBuffer(0));
 	raytracer.setKernelArgs(4, numSpheres);
@@ -181,6 +205,9 @@ void Engine::display()
 
 void Engine::init()
 {
+	//generator.seed(time(NULL));
+	dis = std::uniform_real_distribution<float>(0.0, 1.0);
+
 	//Setup all callbacks here
 	glfwSetWindowSizeCallback(window, reshape);
 	glfwSetKeyCallback(window, key_callback);
@@ -199,6 +226,16 @@ void Engine::init()
 	keyMap.insert(std::pair<int,bool>(GLFW_KEY_KP_1,false));
 	keyMap.insert(std::pair<int,bool>(GLFW_KEY_KP_2,false));
 	keyMap.insert(std::pair<int,bool>(GLFW_KEY_KP_3,false));
+	keyMap.insert(std::pair<int,bool>(GLFW_KEY_KP_4,false));
+	keyMap.insert(std::pair<int,bool>(GLFW_KEY_KP_5,false));
+	keyMap.insert(std::pair<int,bool>(GLFW_KEY_KP_6,false));
+	keyMap.insert(std::pair<int,bool>(GLFW_KEY_KP_7,false));
+	keyMap.insert(std::pair<int,bool>(GLFW_KEY_KP_8,false));
+	keyMap.insert(std::pair<int,bool>(GLFW_KEY_KP_9,false));
+	keyMap.insert(std::pair<int,bool>(GLFW_KEY_LEFT_SHIFT,false));
+	keyMap.insert(std::pair<int,bool>(GLFW_KEY_RIGHT_SHIFT,false));
+	keyMap.insert(std::pair<int,bool>(GLFW_KEY_BACKSPACE,false));
+	keyMap.insert(std::pair<int,bool>(GLFW_KEY_DELETE,false));
 
 	keyMap.insert(std::pair<int,bool>(GLFW_KEY_A, false));
 	keyMap.insert(std::pair<int,bool>(GLFW_KEY_D, false));
@@ -219,7 +256,11 @@ void Engine::init()
 
 	screenDist = calculateDist(60);
 
-	spherePos = glm::vec3(650,360,80);
+	//spherePos = glm::vec3(607,345,70);
+	spherePos = glm::vec3((screenWidth/2.0)-33, (screenHeight/2.0)-15, 70);
+
+	x = (screenWidth / 2.0f) - 33;
+	y = (screenHeight / 2.0f) - 15;
 
 	std::cout << "screenDist\t" << screenDist << "\n";
 
@@ -260,9 +301,11 @@ bool Engine::createWindow()
 		return false;
 	}
 
-	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+	glfwWindowHint(GLFW_REFRESH_RATE, GLFW_DONT_CARE);
 
 	/* Create a windowed mode window and its OpenGL context */
+	//window = glfwCreateWindow(screenWidth, screenHeight, "Realtime ratracing test", glfwGetPrimaryMonitor(), NULL);
 	window = glfwCreateWindow(screenWidth, screenHeight, "Realtime ratracing test", NULL, NULL);
 	if (!window)
 	{
@@ -328,7 +371,7 @@ void Engine::createScreenImage()
 	glBindTexture(GL_TEXTURE_2D, texID);
 	//glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, /*img.getFormat()*/GL_RGBA, GL_UNSIGNED_BYTE, &image);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screenDim, screenDim, 0, /*img.getFormat()*/GL_RGB, GL_FLOAT, screenImage);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, screenDim, screenDim, 0, /*img.getFormat()*/GL_RGB, GL_FLOAT, screenImage);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -382,7 +425,7 @@ void Engine::createScreenImage()
 void Engine::processEvents()
 {
 	glfwPollEvents();
-
+	//auto rand = std::bind(distribution, generator);
 	//std::cout << spherePos.x << "," << spherePos.y << "," << spherePos.z << "\n";
 
 	if (keyMap.at(GLFW_KEY_A)) {
@@ -409,12 +452,127 @@ void Engine::processEvents()
 		//move a sphere down
 		spherePos.y += 0.1f;
 	}
+	if (keyMap.at(GLFW_KEY_BACKSPACE)) {
+		if (numSpheres > 0) {
+			spheres.pop_back(); 
+			numSpheres--; 
+			x -= 15;
+		}
+		if (!(keyMap.at(GLFW_KEY_LEFT_SHIFT) || keyMap.at(GLFW_KEY_RIGHT_SHIFT))) { keyMap.at(GLFW_KEY_BACKSPACE) = false; }
+	}
+	if (keyMap.at(GLFW_KEY_DELETE)) {
+		if (numSpheres > 0) {
+			spheres.clear();
+			numSpheres = 0;
+			x = 607, y = 345, z = 70;
+		}
+	}
+	if (keyMap.at(GLFW_KEY_KP_1)) {
+		//addSphere(glm::vec3(),5,)
+		//generator.seed(time(NULL));
+		//distribution(generator);
+		addSphere(glm::vec3(x, y, z), 5, glm::vec3(dis(gen), dis(gen), dis(gen)), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), 50, 0.0f, 1.0f,1.0f);
+		keyMap.at(GLFW_KEY_KP_1) = false;
+		x += 15;
+	}
+	if (keyMap.at(GLFW_KEY_KP_2)) {
+		//generator.seed(time(NULL));
+		addSphere(glm::vec3(x, y, z), 5, glm::vec3(dis(gen), dis(gen), dis(gen)), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), 50, 0.0f, 0.5f, 1.0f);
+		keyMap.at(GLFW_KEY_KP_2) = false;
+		x += 15;
+	}
+	if (keyMap.at(GLFW_KEY_KP_3)) {
+		//generator.seed(time(NULL));
+		//std::cout << rand() << " " << rand() << " " << rand() << "\n";
+		addSphere(glm::vec3(x, y, z), 5, glm::vec3(dis(gen), dis(gen), dis(gen)), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), 50, 1.0f, 1.0f, 1.0f);
+		keyMap.at(GLFW_KEY_KP_3) = false;
+		x += 15;
+	}
+	if (keyMap.at(GLFW_KEY_KP_4)) {
+		addSphere(glm::vec3(x, y, z), 5, glm::vec3(dis(gen), dis(gen), dis(gen)), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), 50, 0.0f, 1.0f, 1.0f);
+		x += 15;
+	}
+	if (keyMap.at(GLFW_KEY_KP_5)) {
+		addSphere(glm::vec3(x, y, z), 5, glm::vec3(dis(gen), dis(gen), dis(gen)), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), 50, 0.0f, 0.5f, 1.0f);
+		x += 15;
+	}
+	if (keyMap.at(GLFW_KEY_KP_6)) {
+		addSphere(glm::vec3(x, y, z), 5, glm::vec3(dis(gen), dis(gen), dis(gen)), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), 50, 1.0f, 1.0f, 1.0f);
+		x += 15;
+	}
+	if (keyMap.at(GLFW_KEY_KP_7)) {
+		keyMap.at(GLFW_KEY_KP_7) = false;
+		for (int i = 0; i < 100; i++) {
+			addSphere(glm::vec3(x, y, z), 5, glm::vec3(dis(gen), dis(gen), dis(gen)), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), 50, 0.0f, 1.0f, 1.0f);
+			x += 15;
+			if (x > ((screenWidth / 2.0f) + 30)) {
+				x = (screenWidth / 2.0f) - 33;
+				y += 15;
+				if (y > ((screenHeight / 2.0f) + 15)) {
+					y = (screenHeight / 2.0f) - 15;
+					z += 15;
+				}
+			}
+		}
+	}
+	if (keyMap.at(GLFW_KEY_KP_8)) {
+		keyMap.at(GLFW_KEY_KP_8) = false;
+		for (int i = 0; i < 100; i++) {
+			addSphere(glm::vec3(x, y, z), 5, glm::vec3(dis(gen), dis(gen), dis(gen)), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), 50, 0.0f, 0.5f, 1.0f);
+			x += 15;
+			if (x > ((screenWidth / 2.0f) + 30)) {
+				x = (screenWidth / 2.0f) - 33;
+				y += 15;
+				if (y > ((screenHeight / 2.0f) + 15)) {
+					y = (screenHeight / 2.0f) - 15;
+					z += 15;
+				}
+			}
+		}
+	}
+	if (keyMap.at(GLFW_KEY_KP_9)) {
+		keyMap.at(GLFW_KEY_KP_9) = false;
+		for (int i = 0; i < 100; i++) {
+			addSphere(glm::vec3(x, y, z), 5, glm::vec3(dis(gen), dis(gen), dis(gen)), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.8, 0.8, 0.8), glm::vec3(0.9, 0.9, 0.9), 50, 1.0f, 1.0f, 1.0f);
+			x += 15;
+			if (x > ((screenWidth / 2.0f) + 30)) {
+				x = (screenWidth / 2.0f) - 33;
+				y += 15;
+				if (y > ((screenHeight / 2.0f) + 15)) {
+					y = (screenHeight / 2.0f) - 15;
+					z += 15;
+				}
+			}
+		}
+	}
+	//x = (screenWidth / 2.0f) - 33;
+	//y = (screenHeight / 2.0f) - 15;
 
+
+	if (x > ((screenWidth / 2.0f) + 30)) {
+		x = (screenWidth / 2.0f) - 33;
+		y += 15;
+		if (y > ((screenHeight / 2.0f) + 15)) {
+			y = (screenHeight / 2.0f) - 15;
+			z += 15;
+		}
+	}
+	if (x < ((screenWidth / 2.0f) - 33)) {
+		x = (screenWidth / 2.0f) + 27;
+		y -= 15;
+		if (y < ((screenHeight / 2.0f) - 15)) {
+			y = (screenHeight / 2.0f) + 15;
+			z -= 15;
+		}
+	}
+	//std::cout << x << " " << y << " " << z << "\n";
+	std::cout << "Number of spheres\t" << numSpheres << "\n";
 	//std::cout << spherePos.x << "," << spherePos.y << "," << spherePos.z << "\n";
-	
-	spheres.at((1 * 18) + 0) = spherePos.x;
-	spheres.at((1 * 18) + 1) = spherePos.y;
-	spheres.at((1 * 18) + 2) = spherePos.z;
+	if (!spheres.empty()) {
+		spheres.at((0 * 20) + 0) = spherePos.x;
+		spheres.at((0 * 20) + 1) = spherePos.y;
+		spheres.at((0 * 20) + 2) = spherePos.z;
+	}
 	//std::cout << spheres.at((1 * 17) + 0) << ", " << spheres.at((1 * 17) + 1) << ", " << spheres.at((1 * 17) + 2) << "\n";
 }
 
